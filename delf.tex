@@ -11,9 +11,9 @@ Zeiler und Fergus haben gezeigt \cite{extraction_point_meaning}, dass CNNs mit w
 \\
 ResNets können in unterschiedlichen Konfigurationen erstellt werden. Das für Delf verwendete \mbox{ResNet-50} besteht aus 49 faltenden gefolgt von einer vollvernetzen Schicht. Skip-Verbindungen überspringen jeweils drei Schichten. Das Netzwerk kann in vier Blöcke unterteilt werden. Die Größe der einzelnen Featuremaps, der Ausgabe verringert sich nach jedem Block um den Faktor vier, wohingegen die Merkmalstiefe bzw. Anzahl der Featuremaps in der Ausgabe steigt (Siehe Abb.\ref{resnet}b). In der Implementierung dieser Arbeit wird die von Torchvision zur Verfügung gestellte ResNet-50 Architektur genutzt\footnote[1]{\url{https://github.com/pytorch/vision/blob/c2e8a00885e68ae1200eb6440f540e181d9125de/torchvision/models/resnet.py}, zuletzt besucht 16.06.20}. 
 \begin{figure}
-\label{resnet}
 \includegraphics[scale=0.70]{resnet-50.pdf}
 \caption{Aufbau der ResNet-Architektur (vgl. Fig.2, Fig.3 aus \cite{resnet})}
+\label{resnet}
 \end{figure}
 
 \section{Trainingsdaten}
@@ -40,13 +40,13 @@ Hierbei ist $\hat{Y'}$ ein Ausgabevektor des Netzwerks und $\hat{Y'_c}$ der Eint
 
 \section{Attention Training}
 
-Delf erzeugt eine große Anzahl an lokalen Deskriptoren, um Bilder zu beschreiben. Da jeder Deskriptor nur einen Ausschnitt des Originalbildes beschreibt, werden auch Deskriptoren für wenig aussagekräftige Bereiche, wie z.B. Teile des Himmels erstellt. Diese Deskriptoren benötigen nicht nur zusätzliche Rechenzeit während des Matchingprozesses sondern können auch zu falsch positiven Matches führen. Ziel der zweiten Trainingsphase ist es daher auf Basis dieser Deskriptoren ein Netzwerk zu trainieren, welches in der Lage ist die Qualität der Deskriptoren zu bewerten und so ungeeignete Kandidaten herauszufiltern. 
+Delf erzeugt eine große Anzahl an lokalen Deskriptoren, um Bilder zu beschreiben. Da jeder Deskriptor nur einen Ausschnitt des Originalbildes beschreibt, werden auch Deskriptoren für wenig aussagekräftige Bereiche, wie z.B. Teile des Himmels erstellt. Diese Deskriptoren beanspruchen nicht nur zusätzliche Rechenzeit während des Matchingprozesses sondern können auch zu falsch positiven Matches führen. Ziel der zweiten Trainingsphase ist es daher auf Basis dieser Deskriptoren ein Netzwerk zu trainieren, welches in der Lage ist die Qualität der Deskriptoren zu bewerten und so ungeeignete Kandidaten herauszufiltern. 
 Zur Erstellung der Deskriptoren dient das ResNet-50, welches in der ersten Phase trainiert wurde. Als Deskriptoren werden dabei die Ausgaben aus dem dritten ResNet-Blocks genutzt (vgl. Abb. \ref{resnet}b). Die Ausgaben haben eine Dimensionalität von $w\times h\times 1024$, wobei $w$ und $h$ abhängig von der Breite und Höhe des Eingabebildes sind. Die einzelnen Koordinaten der $1024$ Featuremaps lassen sich jeweils auf einen Bildbereich in der Eingabe zurückführen. So kann die Ausgabe in $w \times h$ Deskriptoren der Größe $1024$ eingeteilt werden. Wie auch beim Fine-Tuning werden die Bilder für das Training zunächst quadratisch zugeschnitten. Anschließend werden sie auf eine zufällige Seitenlänge zwischen $255$ bis $720$ Pixel skaliert. Die Skalierung hat Einfluss auf die Beschaffenheit der entstehenden Deskriptoren. Durch das zufällige Skalieren der Trainingsbilder lernt das Attention-Netzwerk mit Deskriptoren aus verschiedenen Skalen umzugehen. Während dem Attention-Training werden die Parameter des ResNets nicht mehr verändert. Die Schichten nach dem Extraktionspunkt in Block 3 werden nicht mehr benötigt und können verworfen werden. \\
 Aufgabe des Attention-Netzwerks ist es für eine Eingabe an Deskriptoren der Form $w\times h\times 1024$ eine einzelne Featuremap der Größe $w\times h$ zu generieren, dessen Werte jeweils einen Deskriptor bewerten. Wichtig ist dabei, dass die Berechnung der einzelnen Attention-Werte nur von den Werte der dazugehörigen Deskriptoren abhängen dürfen. Dies kann durch faltenden Schichten mit $1\times1$-Filtermasken realisiert werden. Die Attention-Einheit besteht aus zwei solcher Schichten, welche die Merkmalstiefe der Deskriptoren sukzessive auf $1$ reduzieren (vgl. Abb. \ref{attention}a).  
-\\ 
 \begin{figure}
+\centering
 \includegraphics[scale=0.80]{attention_spaced.pdf}
 \caption{Architektur des Attention Trainings}
 \label{attention}
 \end{figure}
-next-> optimierung der Attention unit
+Um die Parameter der Attention-Einheit zu optimieren müssen ihre Ausgaben zur Lösung der Trainingsaufgabe beitragen. Da die Attention-Werte später genutzt werden um zu entscheiden, welche Deskriptoren Einfluss auf die Lösung der Retrievalaufgabe haben ist es sinnvoll sie auch beim Training in einer Form zu nutzen, die den Einfluss der Deskriptoren zur Lösung der Klassifikationsaufgabe reguliert. Die Attention-Werte werden zur Gewichtung der Deskriptoren genutzt und dafür elementweise mit den Featuremaps der Deskriptoren Multipliziert. Anschließend werden die gewichteten Featuremaps zu jeweils einem Wert aufsummiert. Als Ausgabe ergibt sich ein $1024$ dimensionaler Vektor (vgl. Abb. \ref{attention}b). Abschließend muss die Ausgabe in eine passende Form für die Cross-Entropy Loss Fehlerfunktion gebracht werden. Dies geschieht analog wie im Fine-Tuning durch Verwendung einer $1\times1$-Faltungsschicht und anschließender Softmaxaktivierung der Ausgabe (vgl. \ref{attention}c).
