@@ -36,7 +36,7 @@ Um die Netzwerkausgaben in den richtigen Wertebereich zu überführen, werden di
 \begin{equation}
 \text{Softmax}(\hat{Y'})_{c} = \frac{e^{\hat{Y'_c}}}{\sum_{\forall x \in C}{e^{\hat{Y'_x}}}} \forall c \in C
 \end{equation}
-Hierbei ist $\hat{Y'}$ ein Ausgabevektor des Netzwerks und $\hat{Y'_c}$ der Eintrag des Vektors welcher zur Klasse $c$ zugeordnet ist. Der resultierende Vektor kann als Wahrscheinlichkeitsverteilung über die unterschiedlichen Klassen im Bezug zur Eingabe interpretiert werden. Mit den vorgenommenen Modifikationen kann das ResNet Modell jetzt auf dem Trainingsdatensatz optimiert werden. Die für das Fine-Tuning und Attention-Training verwendeten Hyperparamter werden dabei im Experimentalteil in Sektion \ref{hyperparam} erläutert.
+Hierbei ist $\hat{Y'}$ ein Ausgabevektor des Netzwerks und $\hat{Y'_c}$ der Eintrag des Vektors welcher zur Klasse $c$ zugeordnet ist. Der resultierende Vektor kann als Wahrscheinlichkeitsverteilung über die unterschiedlichen Klassen im Bezug zur Eingabe interpretiert werden. Mit den vorgenommenen Modifikationen kann das ResNet Modell auf dem Trainingsdatensatz optimiert werden. Die für das Fine-Tuning und Attention-Training verwendeten Hyperparamter werden im Experimentalteil in Sektion \ref{hyperparam} erläutert.
 
 \section{Attention Training}
 
@@ -50,3 +50,35 @@ Aufgabe des Attention-Netzwerks ist es für eine Eingabe an Deskriptoren der For
 \label{attention}
 \end{figure}
 Um die Parameter der Attention-Einheit zu optimieren müssen ihre Ausgaben zur Lösung der Trainingsaufgabe beitragen. Da die Attention-Werte später genutzt werden um zu entscheiden, welche Deskriptoren Einfluss auf die Lösung der Retrievalaufgabe haben ist es sinnvoll sie auch beim Training in einer Form zu nutzen, die den Einfluss der Deskriptoren zur Lösung der Klassifikationsaufgabe reguliert. Die Attention-Werte werden zur Gewichtung der Deskriptoren genutzt und dafür elementweise mit den Featuremaps der Deskriptoren Multipliziert. Anschließend werden die gewichteten Featuremaps zu jeweils einem Wert aufsummiert. Als Ausgabe ergibt sich ein $1024$ dimensionaler Vektor (vgl. Abb. \ref{attention}b). Abschließend muss die Ausgabe in eine passende Form für die Cross-Entropy Loss Fehlerfunktion gebracht werden. Dies geschieht analog wie im Fine-Tuning durch Verwendung einer $1\times1$-Faltungsschicht und anschließender Softmaxaktivierung der Ausgabe (vgl. \ref{attention}c).
+
+\section{Extraktion und Verarbeitung}
+
+Nachdem das Training der Modelle abgeschlossen ist, kann mit der Extraktion aller benötigten Informationen über den Retrievaldatensatz begonnen werden. Netzwerkparameter werden ab jetzt nicht mehr modifiziert. Schichten und Operationen nach der Attention-Einheit erfüllen daher keine Zweck mehr und können entfernt werden.
+\subsection{Multi-Skalen-Extraktion}
+Für jedes Bild des Retrievaldatensatzes werden die lokalen Deskriptoren am Extraktionspunkt nach dem dritten ResNet-Block und die dazugehörigen Attention-Werte nach der Attention-Einheit extrahiert. Da die Skalierung des Bildinhalts Einfluss auf die resultierenden Deskriptoren hat, wird für jedes Bild eine Reihen von unterschiedlich skalierten Versionen betrachtet. Dies ist vergleichbar mit der Verwendung des Scale Spaces im SIFT-Verfahren (vgl. Kap.\ref{related_work} Abs.2) und soll zur Invarianz gegenüber Skalierungsoperationen beitragen. Für jedes Bild werden sechs unterschiedlichen Skalen mit Skalierungsfaktoren zwischen $2$ und $\frac{1}{4}$ erstellt, wobei sich benachbarte Skalen um den Faktor $\sqrt{2}$ unterscheiden. 
+\subsection{Deskriptorlokalisierung}
+Für den weiteren Verlauf des Verfahrens muss jeder lokale Deskriptor einem Bereich des Eingangsbildes zuortbar sein. Bei allen verwendeten Schichten des Modells bis zum Extraktionspunkt handelt es sich um Faltungs- oder Poolingschichten. Von welchen Bereichen der Eingabe die Ausgaben dieser Schichten abhängen lässt sich an drei Parametern festmachen. Die Größe der Filtermasken $k$ bestimmt die Größe des Einflussbereiches einzelner Ausgaben. Die Verschiebung der Filtermasken bzw. die Schrittgröße $s$ bestimmt die Verschiebung zwischen den Einflussbereichen der Ausgaben. Das Padding $p$ bestimmt die Größe des Pufferbereichs, der der Eingabe hinzugefügt wird, und sorgt so für eine initiale Verschiebung der Einflussbereiche. Das Padding ist im folgenden immer symmetrisch und wird daher an jeder Seite der Eingabe hinzugefügt. Betrachtet man mehrere aufeinanderfolgende Schichten, so lassen sich die Einflüsse dieser Parameter wie folgt rekursiv berechnen:
+\begin{align}
+\hat{k}_n &= \hat{k}_{n-1} + ((k_n - 1) * \hat{s}_{n-1})
+\\
+\hat{s}_n &= \hat{s}_{n-1} * s_n
+\\
+\hat{p}_n &= \hat{p}_{n-1} + (p_n * \hat{s}_{n-1})
+\\
+\hat{k}_0 &= k_0
+\\
+\hat{s}_0 &= s_0
+\\
+\hat{p}_0 &= p_0
+\end{align}
+Wobei $\hat{k}_n$, $\hat{s}_n$ und $\hat{p}_n$ die Größe der Einflussbereiche, Schrittgröße und Paddinggröße im Bezug zur ursprüngliche Eingabe nach $n$ Schichten repräsentieren. $k_n$, $s_n$ und $p_n$ zeigen die selben Größen für Schicht $n$ im Bezug zur Ausgabe der vorangehenden Schicht. In Abbildung \ref{receptive_field} werden diese Berechnungen exemplarisch erklärt. 
+Berechnet man diese Werte für den Extraktionspunkt nach dem dritten ResNet-Block ergibt sich für jeden lokalen Deskriptor ein quadratischer Einflussbereich $\mathbf{k}$ mit einer Seitenlänge von $267$ Pixeln im Ursprungsbild. Die Verschiebung zwischen Einflussbereichen benachbarter Deskriptoren $\mathbf{s}$ beträgt dabei $16$ Pixel. Das Ursprungbild erhält bis zu dieser Schicht ein effektives Padding $\mathbf{p}$ von $133$ Pixeln in jede Richtung. Aufgrund dieser Werte lassen sich die Einflussbereiche für alle $w \times h$ Deskriptoren, die am Extraktionspunkt anfallen wie folgt berechnen:
+\begin{align}
+x_{min}(i,j) &= i*\mathbf{s} - \mathbf{p} 
+\\
+x_{max}(i,j) &= x_{min}(i,j) + \mathbf{k}
+\\ 
+y_{min}(i,j) &= j*\mathbf{s} - \mathbf{p}
+\\ 
+y_{max}(i,j) &= y_{min}(i,j) + \mathbf{k} \qquad\text{ wobei } 0\leq i < w \text{ und } 0\leq j < h
+\end{align}
