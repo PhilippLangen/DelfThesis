@@ -45,7 +45,7 @@ Zur Erstellung der Deskriptoren dient das ResNet-50, welches in der ersten Phase
 Aufgabe des Attention-Netzwerks ist es für eine Eingabe an Deskriptoren der Form $w\times h\times 1024$ eine einzelne Featuremap der Größe $w\times h$ zu generieren, dessen Werte jeweils einen Deskriptor bewerten. Wichtig ist dabei, dass die Berechnung der einzelnen Attention-Werte nur von den Werte der dazugehörigen Deskriptoren abhängen dürfen. Dies kann durch faltenden Schichten mit $1\times1$-Filtermasken realisiert werden. Die Attention-Einheit besteht aus zwei solcher Schichten, welche die Merkmalstiefe der Deskriptoren sukzessive auf $1$ reduzieren (vgl. Abb. \ref{attention}a).  
 \begin{figure}
 \centering
-\includegraphics[scale=0.80]{attention_spaced.pdf}
+\includegraphics[scale=0.77]{attention_spaced.pdf}
 \caption{Architektur des Attention Trainings}
 \label{attention}
 \end{figure}
@@ -72,6 +72,12 @@ Für den weiteren Verlauf des Verfahrens muss jeder lokale Deskriptor einem Bere
 \hat{p}_0 &= p_0
 \end{align}
 Wobei $\hat{k}_n$, $\hat{s}_n$ und $\hat{p}_n$ die Größe der Einflussbereiche, Schrittgröße und Paddinggröße im Bezug zur ursprüngliche Eingabe nach $n$ Schichten repräsentieren. $k_n$, $s_n$ und $p_n$ zeigen die selben Größen für Schicht $n$ im Bezug zur Ausgabe der vorangehenden Schicht. In Abbildung \ref{receptive_field} werden diese Berechnungen exemplarisch erklärt. 
+\begin{figure}
+\centering
+\includegraphics[scale=0.51]{rf.pdf}
+\caption{Berechnung des Einflussbereichs einzelner Ausgaben in der ursprünglichen Eingabe. Links nach einer Faltungsschicht, Rechts nach zwei Schichten. Graue Bereiche repräsentiert hinzugefügten Puffer.}
+\label{receptive_field}
+\end{figure}
 Berechnet man diese Werte für den Extraktionspunkt nach dem dritten ResNet-Block ergibt sich für jeden lokalen Deskriptor ein quadratischer Einflussbereich $\mathbf{k}$ mit einer Seitenlänge von $267$ Pixeln im Ursprungsbild. Die Verschiebung zwischen Einflussbereichen benachbarter Deskriptoren $\mathbf{s}$ beträgt dabei $16$ Pixel. Das Ursprungbild erhält bis zu dieser Schicht ein effektives Padding $\mathbf{p}$ von $133$ Pixeln in jede Richtung. Aufgrund dieser Werte lassen sich die Einflussbereiche für alle $w \times h$ Deskriptoren, die am Extraktionspunkt anfallen wie folgt berechnen:
 \begin{align}
 x_{min}(i,j) &= i*\mathbf{s} - \mathbf{p} 
@@ -82,3 +88,29 @@ y_{min}(i,j) &= j*\mathbf{s} - \mathbf{p}
 \\ 
 y_{max}(i,j) &= y_{min}(i,j) + \mathbf{k} \qquad\text{ wobei } 0\leq i < w \text{ und } 0\leq j < h
 \end{align}
+
+\subsection{Deskriptorselektion}
+
+\begin{algorithm}
+\caption{Non-Maximum-Suppression}
+\label{nms}
+\DontPrintSemicolon
+\KwIn{$\mathcal{E} \leftarrow \{e_1,\ldots,e_n\}$, $\mathcal{A} \leftarrow \{a_1,\ldots,a_n\}$, $T$}
+$\mathcal{S} \leftarrow \emptyset$ \;
+ \While{$\mathcal{E} \neq \emptyset$}{
+  $x \leftarrow$ argmax($\mathcal{A}$) \tcp*[f]{Wähle bestbewertete Box }\;
+  $currBox \leftarrow e_x$  \;
+  $\mathcal{E} \leftarrow \mathcal{E}\, \backslash \{e_x\}$ \tcp*[f]{Verschiebe Box von Kandidaten in Auswahllist} \;
+  $\mathcal{A} \leftarrow \mathcal{A}\, \backslash \{a_x\}$ \;
+  $\mathcal{S} \leftarrow \mathcal{S} \cup \{(e_x,a_x)\}$ \;
+  \ForEach{$e_i \in \mathcal{E}$}
+  {\tcp*[f]{Entferne Boxen mit IoU > T zu currBox aus Kandidatenlist} \;
+   \If{$\text{IoU}(e_i,currBox) > T$}{ 
+   $\mathcal{E} \leftarrow \mathcal{E}\, \backslash \{e_i\}$ \;
+   $\mathcal{A} \leftarrow \mathcal{A}\, \backslash \{a_i\}$ \;
+   }
+   }
+ }
+ \Return{$\mathcal{S}$}
+
+\end{algorithm}
