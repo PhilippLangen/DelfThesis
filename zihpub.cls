@@ -821,7 +821,8 @@ Wissenschaftlichen Hochleistungsrechnen''}
 	\else
 	  \if@noproblem
 	  \else
-	    \textbf{\Large Hier Aufgabenstellung einf\"{u}gen!}
+	  	\include{aufgabenstellung}
+	    %\textbf{\Large Hier Aufgabenstellung einf\"{u}gen!}
 	  \fi
 	\fi
 	\cleardoublestandardpage

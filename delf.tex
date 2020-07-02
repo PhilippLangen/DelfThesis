@@ -57,7 +57,7 @@ Nachdem das Training der Modelle abgeschlossen ist, kann mit der Extraktion alle
 \subsection{Multi-Skalen-Extraktion}
 Für jedes Bild des Retrievaldatensatzes werden die lokalen Deskriptoren am Extraktionspunkt nach dem dritten ResNet-Block und die dazugehörigen Attention-Werte nach der Attention-Einheit extrahiert. Da die Skalierung des Bildinhalts Einfluss auf die resultierenden Deskriptoren hat, wird für jedes Bild eine Reihen von unterschiedlich skalierten Versionen betrachtet. Dies ist vergleichbar mit der Verwendung des Scale Spaces im SIFT-Verfahren (vgl. Kap.\ref{related_work} Abs.2) und soll zur Invarianz gegenüber Skalierungsoperationen beitragen. Für jedes Bild werden sechs unterschiedlichen Skalen mit Skalierungsfaktoren zwischen $2$ und $\frac{1}{4}$ erstellt, wobei sich benachbarte Skalen um den Faktor $\sqrt{2}$ unterscheiden. 
 \subsection{Deskriptorlokalisierung}
-Für den weiteren Verlauf des Verfahrens muss jeder lokale Deskriptor einem Bereich des Eingangsbildes zuortbar sein. Bei allen verwendeten Schichten des Modells bis zum Extraktionspunkt handelt es sich um Faltungs- oder Poolingschichten. Von welchen Bereichen der Eingabe die Ausgaben dieser Schichten abhängen lässt sich an drei Parametern festmachen. Die Größe der Filtermasken $k$ bestimmt die Größe des Einflussbereiches einzelner Ausgaben. Die Verschiebung der Filtermasken bzw. die Schrittgröße $s$ bestimmt die Verschiebung zwischen den Einflussbereichen der Ausgaben. Das Padding $p$ bestimmt die Größe des Pufferbereichs, der der Eingabe hinzugefügt wird, und sorgt so für eine initiale Verschiebung der Einflussbereiche. Das Padding ist im folgenden immer symmetrisch und wird daher an jeder Seite der Eingabe hinzugefügt. Betrachtet man mehrere aufeinanderfolgende Schichten, so lassen sich die Einflüsse dieser Parameter wie folgt rekursiv berechnen:
+Für den weiteren Verlauf des Verfahrens muss jeder lokale Deskriptor einem Bereich des Eingangsbildes zuortbar sein. Bei allen verwendeten Schichten des Modells bis zum Extraktionspunkt handelt es sich um Faltungs- oder Poolingschichten. Von welchen Bereichen der Eingabe die Ausgaben dieser Schichten abhängen lässt sich an drei Parametern festmachen. Die Größe der Filtermasken $k$ bestimmt die Größe des Einflussbereiches einzelner Ausgaben. Die Verschiebung der Filtermasken bzw. die Schrittgröße $s$ bestimmt die Verschiebung zwischen den Einflussbereichen benachbarter Ausgaben. Das Padding $p$ bestimmt die Größe des Pufferbereichs, der der Eingabe hinzugefügt wird, und sorgt so für eine initiale Verschiebung der Einflussbereiche. Das Padding ist im folgenden immer symmetrisch und wird daher an jeder Seite der Eingabe hinzugefügt. Betrachtet man mehrere aufeinanderfolgende Schichten, so lassen sich die Einflüsse dieser Parameter wie folgt rekursiv berechnen:
 \begin{align}
 \hat{k}_n &= \hat{k}_{n-1} + ((k_n - 1) * \hat{s}_{n-1})
 \\
@@ -90,6 +90,11 @@ y_{max}(i,j) &= y_{min}(i,j) + \mathbf{k} \qquad\text{ wobei } 0\leq i < w \text
 \end{align}
 
 \subsection{Deskriptorselektion}
+Im nächsten Verarbeitungsschritt werden die aussagekräftigsten lokalen Deskriptoren auf Basis der Attention-Werte selektiert. Da während der Deskriptorextraktion unterschiedliche skalierte Bildversionen betrachtet wurden steht vor der Selektion ein große Anzahl an Deskriptoren zur Auswahl, die teilweise auch stark überlappende Bildbereiche beschreiben. Das kann dazu führen, dass aus einigen Bildbereichen sehr viele Deskriptoren ausgewählt werden, die zwar individuell viel Information über das Bild bereitstellen, in der Summe aber wenig Nutzen haben, da der gleiche Bildbereich vielfach beschrieben wird. Da die Anzahl der selektierten Deskriptoren pro Bild begrenzt ist, kann dies zu einer Verdrängung von Deskriptoren aus anderen wichtigen Bildbereichen führen. Um dem entgegenzuwirken werden zunächst Deskriptoren, die stark überlappende Bildbereiche beschreiben mittels Non-Maximum-Suppression aussortiert. Als Metrik für die Überlappung wird hierfür die Intersection-over-Union(IoU) zwischen den Einflussbereichen der Deskriptoren berechnet. Also das Verhältnis zwischen überlappenden Flächeninhalt zu gemeinsam eingenommenem Flächeninhalt der Einflussbereiche.
+\begin{equation}
+\text{IoU}(e_1,e_2) = \frac{e_1 \cap e_2}{e_1 \cup e_2}
+\end{equation}
+Wobei $e_1$ und $e_2$ Einflussbereiche zweier Deskriptoren sind. Der Non-Maximum-Suppression Algorithmus (siehe Alg. \ref{nms}) erhält als Eingabe eine Liste mit den Einflussbereichen der lokalen Deskriptoren $\mathcal{E}$, die dazugehörigen Attention-Werte $\mathcal{A}$, sowie einen Schwellwert $T$ der maximal tolerierten IoU zwischen den Einflussbereichen der Deskriptoren. Zunächst werden die Kandidaten nach Attention-Wert sortiert. Der Einflussbereich mit dem höchsten Attention-Wert wird ausgewählt und von der Kandidatenliste in die Ergebnisliste geschoben. Anschließend wir die IoU zwischen dem ausgewählten Einflussbereich und den übrigen Einflussbereichen der Kandidatenliste berechnet. Kandidaten dessen IoU den Schwellwert $T$ überschreiten werden aus der Kandidatenliste entfernt. Anschließend wird aus der Kandidatenliste erneut der Einflussbereich mit dem nun höchsten Attention-Wert ausgewählt und der Prozess wiederholt, bis die Kandidatenliste leer ist. Abschließend wird die Ergebnisliste mit den ausgewählten Bereichen und dazugehörigen Attention-Werten zurückgegeben.
 
 \begin{algorithm}
 \caption{Non-Maximum-Suppression}
@@ -100,11 +105,11 @@ $\mathcal{S} \leftarrow \emptyset$ \;
  \While{$\mathcal{E} \neq \emptyset$}{
   $x \leftarrow$ argmax($\mathcal{A}$) \tcp*[f]{Wähle bestbewertete Box }\;
   $currBox \leftarrow e_x$  \;
-  $\mathcal{E} \leftarrow \mathcal{E}\, \backslash \{e_x\}$ \tcp*[f]{Verschiebe Box von Kandidaten in Auswahllist} \;
+  $\mathcal{E} \leftarrow \mathcal{E}\, \backslash \{e_x\}$ \tcp*[f]{Verschiebe Box von Kandidaten in Ergebnisliste} \;
   $\mathcal{A} \leftarrow \mathcal{A}\, \backslash \{a_x\}$ \;
   $\mathcal{S} \leftarrow \mathcal{S} \cup \{(e_x,a_x)\}$ \;
   \ForEach{$e_i \in \mathcal{E}$}
-  {\tcp*[f]{Entferne Boxen mit IoU > T zu currBox aus Kandidatenlist} \;
+  {\tcp*[f]{Entferne Boxen mit IoU > T zu currBox aus Kandidatenliste} \;
    \If{$\text{IoU}(e_i,currBox) > T$}{ 
    $\mathcal{E} \leftarrow \mathcal{E}\, \backslash \{e_i\}$ \;
    $\mathcal{A} \leftarrow \mathcal{A}\, \backslash \{a_i\}$ \;
@@ -114,3 +119,4 @@ $\mathcal{S} \leftarrow \emptyset$ \;
  \Return{$\mathcal{S}$}
 
 \end{algorithm}
+Im Delf-Verfahren wird für die Vorsortierung ein IoU-Schwellwert von $0.8$ genutzt. Nach der Vorsortierung findet die finale Selektion der Deskriptoren statt. Für jedes Bild werden hierbei von den verbliebenen Deskriptoren die 1000 Deskriptoren mit den höchsten Attention-Werten ausgewählt.
