@@ -120,3 +120,41 @@ $\mathcal{S} \leftarrow \emptyset$ \;
 
 \end{algorithm}
 Im Delf-Verfahren wird für die Vorsortierung ein IoU-Schwellwert von $0.8$ genutzt. Nach der Vorsortierung findet die finale Selektion der Deskriptoren statt. Für jedes Bild werden hierbei von den verbliebenen Deskriptoren die 1000 Deskriptoren mit den höchsten Attention-Werten ausgewählt.
+
+\subsection{Datentransformation und Dimensionsreduktion}
+
+Ziel des letzten Vorverarbeitungsschritts ist es die Daten der lokalen Deskriptoren in eine Form zu bringen, die ein effizientes Vergleichen möglich macht. Obwohl durch den Selektionsprozess bereits die Anzahl an lokalen Deskriptoren je Bild drastisch reduziert wurde ist die aktuelle Repräsentation der einzelnen Bilder noch sehr groß. Mit $1000$ Deskriptoren mit je $1024$ Dimensionen umfasst die Beschreibung jedes Bildes über eine Millionen Werte. Durch die folgenden Transformationen, wird die Größe der lokalen Deskriptoren und damit der gesamt Repräsentation stark reduziert. Die für Delf beschriebenen Transformationen bezeichnen die Autoren dabei als "common practice" (vgl. \cite{delf} Kap.4.3) und beziehen sich dabei auf das von Jégou und Chum in \cite{common_practice} untersuchte Vorgehen zur Transformation von VLAD und BOW-Deskriptoren. Tatsächlich werden Deskriptoren auch in anderen Image Retrieval Verfahren \cite{convnet} \cite{one} auf ähnliche Weise verarbeitet.
+\\
+Zunächst werden die Deskriptoren der Länge nach normiert. Anschließend wird auf ihnen eine Hauptkomponentenanalyse durchgeführt. Die resultierende Transformationsmatrix soll dabei repräsentative für die Deskriptoren des gesamten Datensatzes sein, daher werden bei der Analyse Deskriptoren des ganzen Datensatzes oder zumindest eines erheblichen Teils betrachtet. Ziel der Hauptkomponentenanalyse ist es die Daten anhand neuer Dimensionen, den sogenannten Hauptkomponenten, darzustellen. Die Richtungen der Hauptkomponenten ergeben sich aus einer Linearkombination der bisherigen Dimensionen und sind so gewählt, dass für die transformierten Daten keine Korrelation zwischen den Dimensionen besteht. Eine weitere Eigenschaft dieser Darstellung ist, dass die einzelnen Hauptkomponenten jeweils den größtmöglichen Anteil, der in den Daten vorhandenen Varianz abbilden. D.h. die Hauptkomponente, die den größten Teil der Varianz abbildet ist die Richtung entlang welcher die Daten am stärksten Variieren. Die Hauptkomponente, die den nächst größten Anteil der Varianz erklärt beschreibt den größtmöglichen Anteil der verbleibenden Varianz. Dies führt dazu, dass der wesentliche Teil der Varianz von wenigen Dimensionen erklärt wird. Dadurch ist es möglich einen großen Teil der Dimensionen zu entfernen, ohne einen starken Informationsverlust zu erleiden.
+\\
+Sei $X_{n\times d}$ eine Matrix von $n$ zu analysierenden Deskriptoren mit je $d$ Dimensionen. 
+Zunächst werden die Daten zentriert, sodass ihr Mittelwert entlang der $d$ Dimensionen $0$ ist:
+\begin{equation}
+x'(i,j) = \frac{x(i,j)}{\frac{1}{n}\sum_{k=1}^n{x(k,j)}}\qquad \text{für }0<i\leq n\text{, }0<j\leq d
+\end{equation}
+% 
+Häufig werden die Daten anschließend durch die Standardabweichung der einzelnen Dimensionen geteilt um die Varianz je Dimension auf 1 zu setzten. Je größer die Varianz in den Dimensionen ist, desto größer ihr Anteil in den berechneten Hauptkomponenten. Diese Standardisierung wird daher durchgeführt, wenn die Größe der Varianzen der ursprünglichen Dimensionen nicht adäquat ihre Bedeutsamkeit widerspiegeln. Für Delf wird keine Anpassung der Varianz durchgeführt.
+%
+\\
+Im nächsten Schritt wird für die zentrierten Daten $X'_{n \times d}$ die Kovarianzmatrix $C$ berechnet. 
+\begin{equation}
+C_{d\times d} =  \frac{X^\intercal_{d \times n} * X_{n \times d}}{n}
+\end{equation}
+Diese lässt sich über Eingenwertzerlegung in ihre Eingenvektoren und Eigenwerte zerlegen.
+\begin{equation}
+C_{d\times d} = U_{d\times d}\Lambda_{d\times d}U_{d\times d}^\intercal
+\end{equation}
+$U$ enthält dabei in ihren Spalten die Eigenvektoren von $C$. $\Lambda$ ist eine Diagonalmatrix, die die dazugehörigen Eigenwerte enthält. Die Eigenvektoren geben die Richtungen der Hauptkomponenten an und die dazugehörigen Eigenwerte die Varianz, die durch dich jeweiligen Hauptkomponenten erklärt werden. Sortiert man die Eigenvektoren anhand ihrer Eigenwerte erhält man eine Transformationsmatrix $U'$, mit der sich die Daten so in den Raum der Hauptkomponenten überführen lassen, dass die Dimensionen nach der von ihnen erklärten Varianz sortiert sind. 
+\begin{equation}
+\hat{X}_{n \times d} = X'_{n \times d} * U'_{d \times d}
+\end{equation}
+Verkürzt man die Transformationsmatrix auf die ersten $k$ Spalten, so werden die Daten in einen $k$-dimensionalen Raum abgebildet.
+\begin{equation}
+\hat{X}_{n \times k} = X'_{n \times d} * U'_{d \times k}
+\end{equation}
+In der Delf-Pipeline werden standardmäßig 40 Hauptkomponenten erhalten. In Kapitel \ref{pca_experiments} wird dieser Parameter experimentell untersucht. 
+Delf sieht es vor die Deskriptordaten ebenfalls zu weißen, d.h. in eine Form zu bringen, in der zwischen den Dimensionen keine Korrelation herrscht und die Varianz entlang der Dimensionen je 1 beträgt. Die erste Voraussetzung ist dabei durch die Hauptkomponentenanalyse automatisch erfüllt. Für die Anpassung der Varianz müssen die Daten durch die Standardabweichungen der Dimensionen geteilt werden. Dies kann wie Folgt durch Nutzung der Eigenwerte erreicht werden:
+\begin{equation}
+\hat{X}_{white} = \Lambda^{-1/2}\hat{X}
+\end{equation}
+Abschließend werden die transformierten Deskriptoren erneut L2-normiert.
