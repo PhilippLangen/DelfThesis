@@ -144,16 +144,25 @@ Diese lässt sich über Eingenwertzerlegung in ihre Eingenvektoren und Eigenwert
 \begin{equation}
 C_{d\times d} = U_{d\times d}\Lambda_{d\times d}U_{d\times d}^\intercal
 \end{equation}
-$U$ enthält dabei in ihren Spalten die Eigenvektoren von $C$. $\Lambda$ ist eine Diagonalmatrix, die die dazugehörigen Eigenwerte enthält. Die Eigenvektoren geben die Richtungen der Hauptkomponenten an und die dazugehörigen Eigenwerte die Varianz, die durch dich jeweiligen Hauptkomponenten erklärt werden. Sortiert man die Eigenvektoren anhand ihrer Eigenwerte erhält man eine Transformationsmatrix $U'$, mit der sich die Daten so in den Raum der Hauptkomponenten überführen lassen, dass die Dimensionen nach der von ihnen erklärten Varianz sortiert sind. 
+$U$ enthält dabei in ihren Spalten die Eigenvektoren von $C$. $\Lambda$ ist eine Diagonalmatrix, die die dazugehörigen Eigenwerte enthält. Die Eigenvektoren geben die Richtungen der Hauptkomponenten an und die dazugehörigen Eigenwerte die Varianz, die durch dich jeweiligen Hauptkomponenten erklärt werden. Sortiert man die Eigenvektoren anhand ihrer Eigenwerte erhält man eine Transformationsmatrix $U'$, mit der sich die Daten so in den Raum der Hauptkomponenten überführen lassen, dass die Dimensionen nach der von ihnen erklärten Varianz sortiert sind (vgl. Abb. \ref{pca_ex}ab). 
 \begin{equation}
 \hat{X}_{n \times d} = X'_{n \times d} * U'_{d \times d}
 \end{equation}
+
+\begin{figure}
+\label{pca_ex}
+\centering
+\includegraphics[scale=0.53]{pca.pdf}
+\caption{2D-Beispiel - Hauptkomponentenanalyse}
+\label{attention}
+\end{figure}
+
 Verkürzt man die Transformationsmatrix auf die ersten $k$ Spalten, so werden die Daten in einen $k$-dimensionalen Raum abgebildet.
 \begin{equation}
 \hat{X}_{n \times k} = X'_{n \times d} * U'_{d \times k}
 \end{equation}
 In der Delf-Pipeline werden standardmäßig 40 Hauptkomponenten erhalten. In Kapitel \ref{pca_experiments} wird dieser Parameter experimentell untersucht. 
-Delf sieht es vor die Deskriptordaten ebenfalls zu weißen, d.h. in eine Form zu bringen, in der zwischen den Dimensionen keine Korrelation herrscht und die Varianz entlang der Dimensionen je 1 beträgt. Die erste Voraussetzung ist dabei durch die Hauptkomponentenanalyse automatisch erfüllt. Für die Anpassung der Varianz müssen die Daten durch die Standardabweichungen der Dimensionen geteilt werden. Dies kann wie Folgt durch Nutzung der Eigenwerte erreicht werden:
+Delf sieht es vor die Deskriptordaten ebenfalls zu weißen, d.h. in eine Form zu bringen, in der zwischen den Dimensionen keine Korrelation herrscht und die Varianz entlang der Dimensionen je 1 beträgt (vgl. Abb. \ref{pca_ex}c). Die erste Voraussetzung ist dabei durch die Hauptkomponentenanalyse automatisch erfüllt. Für die Anpassung der Varianz müssen die Daten durch die Standardabweichungen der Dimensionen geteilt werden. Dies kann wie Folgt durch Nutzung der Eigenwerte erreicht werden:
 \begin{equation}
 \hat{X}_{white} = \Lambda^{-1/2}\hat{X}
 \end{equation}
