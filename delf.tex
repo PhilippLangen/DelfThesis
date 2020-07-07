@@ -150,11 +150,10 @@ $U$ enthält dabei in ihren Spalten die Eigenvektoren von $C$. $\Lambda$ ist ein
 \end{equation}
 
 \begin{figure}
-\label{pca_ex}
 \centering
 \includegraphics[scale=0.53]{pca.pdf}
 \caption{2D-Beispiel - Hauptkomponentenanalyse}
-\label{attention}
+\label{pca_ex}
 \end{figure}
 
 Verkürzt man die Transformationsmatrix auf die ersten $k$ Spalten, so werden die Daten in einen $k$-dimensionalen Raum abgebildet.
@@ -167,3 +166,32 @@ Delf sieht es vor die Deskriptordaten ebenfalls zu weißen, d.h. in eine Form zu
 \hat{X}_{white} = \Lambda^{-1/2}\hat{X}
 \end{equation}
 Abschließend werden die transformierten Deskriptoren erneut L2-normiert.
+
+\section{Matching}
+
+Sobald die Daten der lokalen Deskriptoren des Datensatzes erhoben, verarbeitet und in den Bildern lokalisiert sind ist das Delf-System in der Lage Suchanfragen zu bearbeiten. Wird ein Bild als Anfrage an das System gestellt werden auch für dieses Bild alle notwendigen Informationen berechnet, wie im letzten Abschnitt beschrieben. Um die Anfrage zu beantworten müssen die Bilder im Suchdatensatz anhand ihrer Ähnlichkeit zum Anfragebild sortiert werden. Hierfür wird jede mögliche Kombination an Bildpaaren aus der Anfrage und dem Suchdatensatz einzeln untersucht. Zunächst wird dabei ein initiales Matching zwischen den Deskriptoren des Anfragebilds $D_\mathcal{A}$ und den Deskriptoren des aktuell betrachteten Bilds $D_\mathcal{S}$ aus dem Suchdatensatz hergestellt. Für jeden lokalen Deskriptor $d_{\mathcal{A}i}$ wird dabei der ähnlichste Deskriptor in $D_\mathcal{S}$ gesucht. Als Metrik wird hierfür die euklidische Distanz berechnet. Ist die Distanz zwischen $d_{\mathcal{A}i}$ und dem ähnlichsten Deskriptor in $D_\mathcal{S}$ kleiner als ein Schwellwert $T$ werden die Deskriptoren als potentielles Match vermerkt (vgl. Alg. \ref{descmatch}).
+
+\begin{algorithm}
+\caption{Initiales Deskriptor Matching}
+\label{descmatch}
+\DontPrintSemicolon
+\KwIn{$D_\mathcal{A} \leftarrow \{d_{\mathcal{A}1},\ldots,d_{\mathcal{A}n}\}$, $D_\mathcal{S} \leftarrow \{d_{\mathcal{S}1},\ldots,d_{\mathcal{S}n}\}$, $T$}
+$\mathcal{M} \leftarrow \emptyset$ \;
+ \ForEach(\tcp*[f]{Für jeden Deskriptor in $\mathcal{A}$}){$d_{\mathcal{A}i} \in D_\mathcal{A}$}{
+	$closestDistance \leftarrow \inf$ \;
+	$closestDescriptor \leftarrow -1$ \;
+  \ForEach(\tcp*[f]{Finde ähnlichsten Deskriptor in $\mathcal{S}$}){$d_{\mathcal{S}j} \in D_\mathcal{S}$}{ 
+   	\If{$||d_{\mathcal{A}i} - d_{\mathcal{S}j}||_2 < closestDistance$}{ 
+   	$closestDistance \leftarrow ||d_{\mathcal{A}i},d_{\mathcal{S}j}||_2$\;
+   	$closestDescriptor \leftarrow j$
+   }
+   }
+  \If(\tcp*[f]{Falls näher als $T$}){$closestDistance < T$}{
+  $\mathcal{M} \leftarrow \mathcal{M}\cup \{(i,closestDescriptor)\}$ \tcp*[f]{Füge potentielles Match hinzu}
+  }
+ }
+\Return{$\mathcal{S}$}
+
+
+\end{algorithm}
+
