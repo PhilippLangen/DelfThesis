@@ -36,7 +36,7 @@ Um die Netzwerkausgaben in den richtigen Wertebereich zu überführen, werden di
 \begin{equation}
 \text{Softmax}(\hat{Y'})_{c} = \frac{e^{\hat{Y'_c}}}{\sum_{\forall x \in C}{e^{\hat{Y'_x}}}} \forall c \in C
 \end{equation}
-Hierbei ist $\hat{Y'}$ ein Ausgabevektor des Netzwerks und $\hat{Y'_c}$ der Eintrag des Vektors welcher zur Klasse $c$ zugeordnet ist. Der resultierende Vektor kann als Wahrscheinlichkeitsverteilung über die unterschiedlichen Klassen im Bezug zur Eingabe interpretiert werden. Mit den vorgenommenen Modifikationen kann das ResNet Modell auf dem Trainingsdatensatz optimiert werden. Die für das Fine-Tuning und Attention-Training verwendeten Hyperparamter werden im Experimentalteil in Sektion \ref{hyperparam} erläutert.
+Hierbei ist $\hat{Y'}$ ein Ausgabevektor des Netzwerks und $\hat{Y'_c}$ der Eintrag des Vektors welcher zur Klasse $c$ zugeordnet ist. Der resultierende Vektor kann als Wahrscheinlichkeitsverteilung über die unterschiedlichen Klassen im Bezug zur Eingabe interpretiert werden. Mit den vorgenommenen Modifikationen kann das ResNet Modell auf dem Trainingsdatensatz optimiert werden. Die für das Fine-Tuning und Attention-Training verwendeten Hyperparamter werden im Experimentalteil in Sektion \ref{hyperparam} auf Seite \pageref{hyperparam} erläutert.
 
 \section{Attention Training}
 
@@ -56,7 +56,7 @@ Um die Parameter der Attention-Einheit zu optimieren müssen ihre Ausgaben zur L
 Nachdem das Training der Modelle abgeschlossen ist, kann mit der Extraktion aller benötigten Informationen über den Retrievaldatensatz begonnen werden. Netzwerkparameter werden ab jetzt nicht mehr modifiziert. Schichten und Operationen nach der Attention-Einheit erfüllen daher keine Zweck mehr und können entfernt werden.
 \subsection{Multi-Skalen-Extraktion}
 Für jedes Bild des Retrievaldatensatzes werden die lokalen Deskriptoren am Extraktionspunkt nach dem dritten ResNet-Block und die dazugehörigen Attention-Werte nach der Attention-Einheit extrahiert. Da die Skalierung des Bildinhalts Einfluss auf die resultierenden Deskriptoren hat, wird für jedes Bild eine Reihen von unterschiedlich skalierten Versionen betrachtet. Dies ist vergleichbar mit der Verwendung des Scale Spaces im SIFT-Verfahren (vgl. Kap.\ref{related_work} Abs.2) und soll zur Invarianz gegenüber Skalierungsoperationen beitragen. Für jedes Bild werden sechs unterschiedlichen Skalen mit Skalierungsfaktoren zwischen $2$ und $\frac{1}{4}$ erstellt, wobei sich benachbarte Skalen um den Faktor $\sqrt{2}$ unterscheiden. 
-\subsection{Deskriptorlokalisierung}
+\subsection{Deskriptorlokalisierung}\label{rf_chapter}
 Für den weiteren Verlauf des Verfahrens muss jeder lokale Deskriptor einem Bereich des Eingangsbildes zuortbar sein. Bei allen verwendeten Schichten des Modells bis zum Extraktionspunkt handelt es sich um Faltungs- oder Poolingschichten. Von welchen Bereichen der Eingabe die Ausgaben dieser Schichten abhängen lässt sich an drei Parametern festmachen. Die Größe der Filtermasken $k$ bestimmt die Größe des Einflussbereiches einzelner Ausgaben. Die Verschiebung der Filtermasken bzw. die Schrittgröße $s$ bestimmt die Verschiebung zwischen den Einflussbereichen benachbarter Ausgaben. Das Padding $p$ bestimmt die Größe des Pufferbereichs, der der Eingabe hinzugefügt wird, und sorgt so für eine initiale Verschiebung der Einflussbereiche. Das Padding ist im folgenden immer symmetrisch und wird daher an jeder Seite der Eingabe hinzugefügt. Betrachtet man mehrere aufeinanderfolgende Schichten, so lassen sich die Einflüsse dieser Parameter wie folgt rekursiv berechnen:
 \begin{align}
 \hat{k}_n &= \hat{k}_{n-1} + ((k_n - 1) * \hat{s}_{n-1})
@@ -160,7 +160,7 @@ Verkürzt man die Transformationsmatrix auf die ersten $k$ Spalten, so werden di
 \begin{equation}
 \hat{X}_{n \times k} = X'_{n \times d} * U'_{d \times k}
 \end{equation}
-In der Delf-Pipeline werden standardmäßig 40 Hauptkomponenten erhalten. In Kapitel \ref{pca_experiments} wird dieser Parameter experimentell untersucht. 
+In der Delf-Pipeline werden standardmäßig 40 Hauptkomponenten erhalten. In Kapitel \ref{pca_experiments} auf Seite \pageref{pca_experiments} wird dieser Parameter experimentell untersucht. 
 Delf sieht es vor die Deskriptordaten ebenfalls zu weißen, d.h. in eine Form zu bringen, in der zwischen den Dimensionen keine Korrelation herrscht und die Varianz entlang der Dimensionen je 1 beträgt (vgl. Abb. \ref{pca_ex}c). Die erste Voraussetzung ist dabei durch die Hauptkomponentenanalyse automatisch erfüllt. Für die Anpassung der Varianz müssen die Daten durch die Standardabweichungen der Dimensionen geteilt werden. Dies kann wie Folgt durch Nutzung der Eigenwerte erreicht werden:
 \begin{equation}
 \hat{X}_{white} = \Lambda^{-1/2}\hat{X}
@@ -169,7 +169,8 @@ Abschließend werden die transformierten Deskriptoren erneut L2-normiert.
 
 \section{Matching}
 
-Sobald die Daten der lokalen Deskriptoren des Datensatzes erhoben, verarbeitet und in den Bildern lokalisiert sind ist das Delf-System in der Lage Suchanfragen zu bearbeiten. Wird ein Bild als Anfrage an das System gestellt werden auch für dieses Bild alle notwendigen Informationen berechnet, wie im letzten Abschnitt beschrieben. Um die Anfrage zu beantworten müssen die Bilder im Suchdatensatz anhand ihrer Ähnlichkeit zum Anfragebild sortiert werden. Hierfür wird jede mögliche Kombination an Bildpaaren aus der Anfrage und dem Suchdatensatz einzeln untersucht. Zunächst wird dabei ein initiales Matching zwischen den Deskriptoren des Anfragebilds $D_\mathcal{A}$ und den Deskriptoren des aktuell betrachteten Bilds $D_\mathcal{S}$ aus dem Suchdatensatz hergestellt. Für jeden lokalen Deskriptor $d_{\mathcal{A}i}$ wird dabei der ähnlichste Deskriptor in $D_\mathcal{S}$ gesucht. Als Metrik wird hierfür die euklidische Distanz berechnet. Ist die Distanz zwischen $d_{\mathcal{A}i}$ und dem ähnlichsten Deskriptor in $D_\mathcal{S}$ kleiner als ein Schwellwert $T$ werden die Deskriptoren als potentielles Match vermerkt (vgl. Alg. \ref{descmatch}).
+Sobald die Daten der lokalen Deskriptoren des Datensatzes erhoben, verarbeitet und in den Bildern lokalisiert sind ist das Delf-System in der Lage Suchanfragen zu bearbeiten. Wird ein Bild als Anfrage an das System gestellt werden auch für dieses Bild alle notwendigen Informationen berechnet, wie im letzten Abschnitt beschrieben. Um die Anfrage zu beantworten müssen die Bilder im Suchdatensatz anhand ihrer Ähnlichkeit zum Anfragebild sortiert werden. Hierfür wird jede mögliche Kombination an Bildpaaren aus der Anfrage und dem Suchdatensatz einzeln untersucht. Zunächst wird dabei ein initiales Matching zwischen den Deskriptoren des Anfragebildes $D_\mathcal{A}$ und den Deskriptoren des aktuell betrachteten Bildes $D_\mathcal{S}$ aus dem Suchdatensatz hergestellt. Für jeden lokalen Deskriptor $d_{\mathcal{A}i}$ wird dabei der ähnlichste Deskriptor in $D_\mathcal{S}$ gesucht. Als Metrik wird hierfür die euklidische Distanz berechnet. Ist die Distanz zwischen $d_{\mathcal{A}i}$ und dem ähnlichsten Deskriptor in $D_\mathcal{S}$ kleiner als ein Schwellwert $T$ werden die Deskriptoren als potentielles Match vermerkt (vgl. Alg. \ref{descmatch}).
+Delf nutzt für $T$ standardmäßig einen Wert vom $0.8$.
 
 \begin{algorithm}
 \caption{Initiales Deskriptor Matching}
@@ -191,7 +192,39 @@ $\mathcal{M} \leftarrow \emptyset$ \;
   }
  }
 \Return{$\mathcal{S}$}
-
-
 \end{algorithm}
-
+Anschließend wird überprüft, ob sich die gefundenen Matches auch geometrisch erklären lassen. Die Annahme dabei ist, dass es eine affine Transformation vom Anfragebild auf das betrachtete Bild der Suchdatenbank geben muss, welche die Deskriptorpositionen im Anfragebild auf die Positionen der gefundenen Matches im Suchbild projiziert, falls das betrachtete Bildpaar tatsächlich den gleichen Bildinhalt zeigt.
+\\
+Für die geometrische Verifikation müssen die Deskriptoren der Matches Koordinaten in ihren dazugehörigen Bildern zugeordnet werden. Hierfür werden die zuvor berechneten Einflussbereiche der Deskriptoren (siehe Kap. \ref{rf_chapter} auf Seite \pageref{rf_chapter}) genutzt. Die Zentren der Einflussbereiche dienen dabei als Referenzpunkte für die Deskirptoren. Für die Verifikation wird der RANSAC-Algorithmus (RANdom SAmple Consesus) \cite{ransac} von Fischler und Bolles genutzt. Als Eingabe erhält der Algorithmus eine Liste mit den Positionen der Deskriptoren aus den potentiellen Matches $\mathcal{L}$, einen Schwellwert $T_{in}$, der festlegt, wie weit die projizierte Positionen maximal von den tatsächlichen Postionen ihres Matches entfernt sein dürfen, um noch von einer Transformation erklärt zu werden und die Anzahl an Versuchen $numTrials$, die unternommen werden um eine passende Transformation zu finden.\\
+Zu Beginn werden zufällig Matchpaare aus $\mathcal{L}$ gewählt, mit denen sich eine affine Transformation zwischen den Bildern bestimmen lässt. Für eine affine Ebenentransformation benötigt man drei Koordinatenpaare, um eine Transformationsmatix bestimmen zu können. Nun wird überprüft welche Matches sich von dieser Transformation erklären lassen. Sind die Abstände der transformierten Deskriptorpositionen des Anfragebildes zu ihren Matches im aktuellen Suchbild innerhalb des Schwellwerts $T_{in}$ werden sie als Inlier bezeichnet. D.h. sie können von der Transformation erklärt werden. Dieser Prozess wird mehrfach wiederholt, wobei jedes Mal zufällige Matchpaare für die Berechnung der Transformationsmatrizen genutzt werden.   Nach $numTrails$ Versuchen gibt der Algorithmus die Transformation mit den dazugehörigen Inliern zurück, welche die meisten Matches erklären könnte (vgl. Alg. \ref{ransac}). Für Delf werden standardmäßig 1000 RANSAC-Versuche geeignete Transformationen zu finden. Die Schwellwertdistanz $T_{in}$ beträgt dabei 20. 
+\begin{algorithm}
+\caption{RANSAC}
+\label{ransac}
+\DontPrintSemicolon
+\KwIn{$\mathcal{L} \leftarrow \{(l_{\mathcal{A}1}, l_{\mathcal{S}1}), \ldots, (l_{\mathcal{A}k}, l_{\mathcal{S}k})\}, T_{in}, numTrials$}
+$bestModel \leftarrow \text{None}$ \;
+$bestInliers \leftarrow \emptyset$ \;
+\For{$i=0, i<numTrials, i$++}{
+	\tcp*[l]{Berechne affine Transformation aus zufälligen Matchpaaren}
+	$inliers \leftarrow \emptyset$ \;
+	$selectedMatches \leftarrow \text{drawRandomMatches}(\mathcal{L}, pairsNeeded=3)$ \;
+	$model \leftarrow \text{calcModel}(selctedMatches)$\; 
+	\ForEach{$(l_{\mathcal{A}j}, l_{\mathcal{S}j}) \in \mathcal{L}$}
+	{
+		\tcp*[l]{Sammle von Transformation erklärte Paare}  
+		$transformedLocation \leftarrow \text{transform}(l_{\mathcal{A}j}, model)$ \;
+		\If{$||l_{\mathcal{S}j} - transformedLocation||_2 < T_{in}$}
+		{
+		$inliers \leftarrow inliers \cup \{(l_{\mathcal{A}j}, l_{\mathcal{S}j})\}$\;
+		}
+	}
+	\If{$\text{len}(inliers) > \text{len}(bestInliers)$}
+	{
+		$bestInliers \leftarrow inliers$\;
+		$bestModel \leftarrow model$\; 		
+	}
+}
+\Return{$bestInliers, bestModel$} \tcp*[f]{Gib bestes Modell + Inlier zurück}\;
+\end{algorithm}
+\\
+Delf nutzt die Anzahl erklärter Deskriptormatches als Metrik für die Ähnlichkeit zwischen Bildpaaren. So können die Bilder der Suchdatenbank anhand ihrer Ähnlichkeit sortiert und dem Nutzer zurückgegeben werden. In Kapitel \ref{metric_experiment} auf Seite \pageref{metric_experiment} werden Parameter und Metriken zur Bestimmung von Ähnlichkeiten zwischen Bilder experimentell betrachtet. 
