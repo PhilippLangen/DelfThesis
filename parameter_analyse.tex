@@ -1,0 +1,15 @@
+\chapter{Parameter Analyse}
+
+Ein wesentliches Ziel dieser Arbeit ist es das Delf-Verfahren insbesondere für den Anwendungsfall des Retrievals von historischen Abbildungen zu optimieren. Hierfür werden ein Reihen an Parametern entlang der Delf-Pipeline variiert und ihre Einflüsse, auf die Retrievalergebnisse analysiert.
+Die benötigte Rechenleistung zur Durchführung der Experimente wird freundlicherweise vom 
+Zentrum für Informationsdienste und Hochleistungsrechnen (ZIH) an der TU Dresden zur Verfügung gestellt. Das verwendete HPC-DA System\footnote{\url{https://tu-dresden.de/zih/hochleistungsrechnen/hpc}, zuletzt besucht am 28.07.20} ermöglicht es viele Experimente parallel und effizient durchzuführen, sodass auch im zeitlich überschaubaren Rahmen dieser Arbeit eine große Anzahl unterschiedlicher Konfigurationen getestet werden können.
+
+\section{Hyperparameter Optimierung der Trainingsphasen}
+Die ersten Experimentalreihen befassen sich mit den Trainingsphasen des Delf-Verfahrens. Um bei späteren Retrievalversuchen gute Ergebnisse erzielen zu können, benötigt man Modelle die in der Lage sind aussagekräftige Bildrepräsentationen zu erstellen. Für die Experimente zum Modelltraining wird dabei angenommen, dass die Güte, der von einem Modell erzeugten Deskriptoren bzw. der von einem Modell getroffenen Auswahl an Deskriptoren positiv mit der Fähigkeit, der Modelle korreliert die beim Training gestellte Klassifikationsaufgaben zu lösen. Um die Modelle zu bewerten wird daher der auftretende Fehler, in Form der Kreuzentropie betrachtet, der auftritt wenn das Modell einen Validierungsdatensatz klassifiziert. Dieser Validierungsdatensatz wird vor Beginn jedes Experiments festgelegt und besteht aus $20\%$ der Trainingsbilder. Die Validierungsdaten stehen dem Modell während des Trainingsprozesses nicht zur Verfügung. Daher können sie genutzt werden, um zu überprüfen, ob ein Modell auch auf ungesehenen Daten vergleichbare Ergebnisse erzielt.
+\\
+Der Erfolg eines Trainingsprozesses hängt wesentlich von der zu trainierenden Architektur und der vorhandenen Datenlage ab. Einfluss haben außerdem Parameter, die den Ablauf des Trainingsprozesses beeinflussen. Dieser Abschnitt befasst sich mit der Suche nach optimalen Werten für vier dieser sogenannten Hyperparameter. Betrachtet wird die Anzahl der Trainingsepochen, die Lernrate, die bestimmt wie stark Netzwerkparameter nach einem Optimierungsschritt angepasst werden, der Faktor $\gamma$ um den die Lernrate alle $10$ Epochen reduziert wird und der L2-Regularisierungsfaktor $w$, welcher die Summe der quadratischen Netzwerkparameter mit in die Fehlerfunktion einfließen lässt und so vermeiden soll, dass Netzwerkparameter zu stark anwachsen.
+%wie groß ist unsere suchraum
+
+%was ist nnopt
+
+%nicht betrachtet werden: batch size 8 und sgd zur optimierung
