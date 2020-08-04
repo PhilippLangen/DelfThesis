@@ -4,7 +4,7 @@ Ein wesentliches Ziel dieser Arbeit ist es das Delf-Verfahren insbesondere für 
 Die benötigte Rechenleistung zur Durchführung der Experimente wird freundlicherweise vom 
 Zentrum für Informationsdienste und Hochleistungsrechnen (ZIH) an der TU Dresden zur Verfügung gestellt. Das verwendete HPC-DA System\footnote{\url{https://tu-dresden.de/zih/hochleistungsrechnen/hpc}, zuletzt besucht am 28.07.20} ermöglicht es viele Experimente parallel und effizient durchzuführen, sodass auch im zeitlich überschaubaren Rahmen dieser Arbeit eine große Anzahl unterschiedlicher Konfigurationen getestet werden können.
 
-\section{Hyperparameteroptimierung der Trainingsphasen}
+\section{Hyperparameteroptimierung der Trainingsphasen}\label{hyperparam}
 Die ersten Experimentalreihen befassen sich mit den Trainingsphasen des Delf-Verfahrens. Um bei späteren Retrievalversuchen gute Ergebnisse erzielen zu können, benötigt man Modelle die in der Lage sind aussagekräftige Bildrepräsentationen zu erstellen. Für die Experimente zum Modelltraining wird dabei angenommen, dass die Güte, der von einem Modell erzeugten Deskriptoren bzw. der von einem Modell getroffenen Auswahl an Deskriptoren positiv mit der Fähigkeit, der Modelle korreliert die beim Training gestellte Klassifikationsaufgaben zu lösen. Um die Modelle zu bewerten wird daher der Fehler, in Form der Kreuzentropie betrachtet, der auftritt wenn das Modell einen Validierungsdatensatz klassifiziert. Vor Beginn jedes Experiments werden zufällig $20\%$ der Trainingsbilder (siehe Kap. \ref{trainingsdata} auf Seite \pageref{trainingsdata}) für die Validierung ausgewählt. Die Validierungsdaten stehen dem Modell während des Trainingsprozesses nicht zur Verfügung. Daher können sie genutzt werden, um zu überprüfen, ob ein Modell auch auf ungesehenen Daten vergleichbare Ergebnisse erzielt.
 \\
 Der Erfolg des Trainingsprozesses hängt wesentlich von der zu trainierenden Architektur und der vorhandenen Datenlage ab. Einfluss haben außerdem Parameter, die den Ablauf des Trainingsprozesses beeinflussen. Die Experiments, die in diesem Abschnitt besprochen werden befassen sich mit der Suche nach optimalen Werten für drei dieser sogenannten Hyperparameter. Betrachtet wird die Anzahl der Trainingsepochen, die Lernrate, die bestimmt wie stark Netzwerkparameter in einem Optimierungsschritt angepasst werden, sowie der Faktor $\gamma$ mit dem die Lernrate alle $10$ Epochen multipliziert wird\footnote{Als weiterer Hyperparameter wurde weight decay untersucht, allerdings lies sich hier kein signifikanter Einfluss auf den Validierungsfehler feststellen. Die Ergebnisse hierzu finden sich im Anhang ab Seite \pageref{weight_decay}}. Die übrigen Hyperparameter sind für alle Experimente fest gesetzt. Die Modelle werden mit einer Batchgröße von $8$ trainiert und mittels Stochastic Gradient Decent (kurz SGD \footnote{\url{https://pytorch.org/docs/stable/optim.html\#torch.optim.SGD}, zuletzt besucht am 30.07.20}) optimiert. Für die zu untersuchenden Hyperparameter werden jeweils Wertebereiche definiert. Die Länge des Trainings kann zwischen $10$ und $40$ Epochen dauern. Die initiale Lernrate wird zwischen $0.01$ und $0.001$ gewählt und der $\gamma$-Faktor liegt im Bereich zwischen $1$ und $0.1$.
@@ -13,7 +13,7 @@ Um den Suchraum effizient erkunden zu können wird das von Norman Koch entwickel
 \\
 Für das Fine-Tuning wurden auf diese Art $22$ unterschiedliche Konfigurationen getestet. Es lässt sich beobachten, dass fast alle getesteten Konfigurationen Modell erzeugen, die in der Lage sind die Trainingsaufgabe sehr gut zu lösen. Im Schnitt erzielen die trainierten Modelle eine Klassifikationgenauigkeit von $95.13\%$ auf den Validierungsdaten\footnote{Obwohl zum Vergleich der Konfigurationen der Validierungsfehler berechnet wurde, wird die Modellperformanz im Folgenden über die Validierungsgenauigkeit dargestellt, da diese Metrik intuitiver ist.}, wobei $20$ der $22$ Modelle eine Genauigkeit von über $90\%$ erreichen(vgl. Abb.\ref{finetuning_int_end}b). Da auf Grund der guten Ergebnisse nur wenig Potential für Verbesserung besteht und die beobachtet Varianz der Ergebnisse unterschiedlicher Konfigurationen gering ist, werden keine weiteren Testläufe zur Hyperparameteroptimierung durchgeführt. Es sei jedoch erwähnt, dass sich auf Grund der im Verhältnis zu Größe der Suchraumes geringen Anzahl an Testläufen keine eindeutigen Abhängigkeiten zwischen Hyperparametern und Klassifikationsperformanz ableiten lassen.
 \\
-Gut beobachten lässt sich der positive Effekt der Nutzung eines vortrainierten Modells zu Initialisierung der Netzwerkparameter. So erreichen alle getesteten Konfigurationen bereits nach der ersten Trainingsepoche eine Validierungsgenauigkeit von über $85\%$ (vgl. Abb.\ref{finetuning_int_end}a). Die initialisierten Parameter müssen nur noch geringfügig angepasst werden, um die neue Trainingsaufgabe zu lösen, weshalb die Modelle schnell große Fortschritte erzielen. 
+Gut beobachten lässt sich der positive Effekt der Nutzung eines vortrainierten Modells zu Initialisierung der Netzwerkparameter. So erreichen alle getesteten Konfigurationen bereits nach der ersten Trainingsepoche eine Validierungsgenauigkeit von über $85\%$ (vgl. Abb.\ref{finetuning_int_end}a). Die initialisierten Parameter müssen nur noch geringfügig angepasst werden, um die neue Trainingsaufgabe zu lösen, weshalb die Modelle von Beginn an gute Ergebnisse erzielen. 
 \\
 \begin{figure}[h]
 \includegraphics[scale=0.750]{NNOPT/init_and_end_perf_finetuning.pdf}
@@ -23,49 +23,51 @@ Gut beobachten lässt sich der positive Effekt der Nutzung eines vortrainierten 
 \\
 Betrachtet man die Ergebnisse der Testläufe in Kombination mit den dazugehörigen Hyperparametern (siehe Abb.\ref{finetuning_all}), so scheint die Anzahl an Trainingsepochen keinen signifikanten Einfluss auf die erzielte Validierungsgenauigkeit zu haben. Dies deckt sich mit der Annahme, dass sich Netzwerkparameter mittles Fine-Tuning in wenigen Epochen optimieren lassen. Betrachtet man den Trainingsverlauf des Fine-Tunings (vgl. Abb. \ref{finetuning_lr_gamma_verlauf}), so stellt man fest, das für die meisten Konfigurationen nach $10-15$ Epochen keine großen Verbesserungen mehr im Hinblick auf die Validierungsgenauigkeit erzielt werden.  
 \begin{figure}[h]
-\includegraphics[scale=0.6]{NNOPT/finetuning_all.pdf}
+\includegraphics[scale=0.58]{NNOPT/finetuning_all.pdf}
 \caption{Parallele Darstellung der getesteten Konfigurationen des Fine-Tunings. Jede Linie repräsentiert einen Konfiguration und die von ihr erzielte Validierungsgenauigkeit.}
 \label{finetuning_all}
 \end{figure}
 \\
 Beleuchtet man die in den getesteten Konfigurationen genutzten Lernraten, so stellt sich heraus, dass alle Testläufe mit einer Lernrate unter $0.005$ eine sehr gute Validierungsgenauigkeit erreichen. Werden höhere Lernraten genutzt, so unterscheiden sich die erzielten Ergebnisse deutlich stärker. Bezieht man die dazugehörigen $\gamma$-Faktoren mit ein, sieht man, dass Konfigurationen mit hoher Lernrate, aber niedrigem $\gamma$-Faktor, also mit starker Reduktion der Lernrate während des Trainingsverlaufes, ebenfalls sehr gute Ergebnisse erzielen. Läufe mit hoher Lernrate, sowie hohem $\gamma$-Faktor schneiden dagegen eher schlechter ab (Siehe Abb. \ref{finetuning_lr_gamma}). Analysiert man die Trainingsverläufe der unterschiedlichen Konfigurationen (Siehe Abb.\ref{finetuning_lr_gamma_verlauf}), findet sich eine mögliche Erklärung für diese Verhalten. Bei niedriger Lernrate nähert sich die Validierungsgenauigkeit ohne starke Einbrüche einem Maximum an. Ist die Lernrate hoch fluktuiert die Validierungsgenauigkeit jedoch stark. Dies weist darauf hin, dass die Modelle nicht in der Lage sind ein stabiles Optimum für ihre Parameter zu finden. Hohe Lernraten können dazu führen, dass Parameter bei Optimierungsschritten zu stark verändert werden und so ihr Optimum immer wieder überspringen. Nach Abschluss der ersten $10$ Epochen wird die Lernrate mit dem $\gamma$-Faktor multipliziert. Für Läufe mit hoher initialer Lernrate und niedrigem $\gamma$-Faktor lässt ab diesem Punkt ein gleichmäßigerer Lernprozess beobachten. 
 \begin{figure}[h]
-\includegraphics[scale=0.6]{NNOPT/finetuning_lr_gamma.pdf}
+\includegraphics[scale=0.58]{NNOPT/finetuning_lr_gamma.pdf}
 \caption{Betrachtung der genutzten Lernraten und $\gamma$-Faktoren. Grün: Konfigurationen mit niedriger Lernrate $(<0.005)$, Rot: Hohe Lernrate und niedriges $\gamma$ $(<0.65)$, Blau: Hohe Lernrate und hohes $\gamma$}
 \label{finetuning_lr_gamma}
-\end{figure}
-\begin{figure}[h]
+
 \centering
 \includegraphics[scale=0.6]{NNOPT/finetuning_lr_gamma_verlauf.pdf}
 \caption{Trainingsverlauf der Fine-Tunings, bei unterschiedlicher Lernrate und $\gamma$. Farbgebung analog zu Abb.\ref{finetuning_lr_gamma}}
 \label{finetuning_lr_gamma_verlauf}
 \end{figure}
 \clearpage
-Die Konfiguration mit dem besten Trainingsergebnis schreibt eine Trainingsdauer von $22$ Epoche, bei einer initialen Lernrate von $0.0032$ und einem $\gamma$-Faktor von $0.19$ vor und erzielt nach der letzten Epoche eine Validierungsgenauigkeit von $97.6\%$. Das dabei trainierte Modell ist der Ausgangspunkt für die Hyperparameteroptimierung des Attention-Trainings. Analog wie in den Experimenten zum Fine-Tuning werden mit Hilfe von NNOPT $60$ unterschiedliche Konfigurationen für das Attention-Training getestet.
+Die Konfiguration mit dem besten Trainingsergebnis schreibt eine Trainingsdauer von $22$ Epoche, bei einer initialen Lernrate von $0.0032$ und einem $\gamma$-Faktor von $0.19$ vor und erzielt nach der letzten Epoche eine Validierungsgenauigkeit von $97.6\%$.
+\\
+Das dabei trainierte Modell ist der Ausgangspunkt für die Hyperparameteroptimierung des Attention-Trainings. Analog wie in den Experimenten zum Fine-Tuning werden mit Hilfe von NNOPT $60$ unterschiedliche Konfigurationen für das Attention-Training getestet. Obwohl das Modell für das Attention-Training durch Entfernung des vierten ResNet-Blocks deutlich verkleinert wird und die Ausgaben des ResNets unter Verwendung des gewichteten Sum-Poolings (vgl. Abb.\ref{attention} auf Seite \pageref{attention}) sehr restriktiv genutzt werden, sind die Attention-Modelle in fast allen untersuchten Konfigurationen in der Lage die Klassifikationsaufgaben weiterhin sehr gut zu Lösen. So werden in $59$ der $60$ untersuchten Konfigurationen eine abschließende Validierungsgenauigkeit von über $89\%$ erreicht (siehe Abb.\ref{attention_int_end}b). Die durchschnittliche Validierungsgenauigkeit nach der letzten Trainingsepoche beträgt $91.3\%$, was einer durchschnittlichen Verschlechterung von $6.3\%$ gegenüber dem verwendeten fine-getunten ResNet-Modell entspricht. Im Kontrast zum Fine-Tuning variiert die gemessene Validierungsgenauigkeit nach der ersten Trainingsepoche der Attention-Trainings deutlich stärker und ist allgemein niedriger (vgl. Abb.\ref{attention_int_end}a). Da die Parameter der zu optimierenden Attention-Einheit nicht vortrainiert sind und daher zufällig initialisiert werden sind größere Unterschiede und schlechter Ergebnisse zu Beginn des Trainings, sowie eine längere benötigte Trainingsdauer zu erwarten.
 \begin{figure}[h]
 \includegraphics[scale=0.75]{NNOPT/init_and_end_perf_attention.pdf}
 \caption{Erreichte Klassifikationsgenaugikeit nach der ersten bzw. letzten Epoche des Attention-Trainings, der getesteten Konfigurationen}
 \label{attention_int_end}
 \end{figure}
+\\
+Betrachtet man die genutzte Anzahl an Trainingsepochen in Kombination mit der erreichten Validierungsgenauigkeit(siehe Abb.\ref{attention_epochs}), bestätigt sich diese Annahme. Konfigurationen mit einer Trainingsdauer unter $20$ Epochen erzielen in unseren Experimente durchschnittlich eine geringere Validierungsgenauigkeit. Ab mehr als $20$ Epochen schwächt sich der positive Effekt einer längeren Trainingsdauer jedoch deutlich ab.
+\\
 \begin{figure}[h]
-\includegraphics[scale=0.6]{NNOPT/attention_epochs.pdf}
+\includegraphics[scale=0.58]{NNOPT/attention_epochs.pdf}
 \caption{Betrachtung der gewählten Trainingsdauer. Rot: Über $20$ Epochen, Blau: $20$ oder weniger Epochen}
 \label{attention_epochs}
+\includegraphics[scale=0.58]{NNOPT/attention_top_runs.pdf}
+\caption{Darstellung der Validierungsgenauigkeit nach Trainingsende. Rot: Läufe mit Validierungsgenauigkeit $\geq 93.5\%$, Grau: Läufe mit niedrigerer Validerungsgenauigkeit}
+\label{attention_top}
 \end{figure}
+\clearpage
+Für Lernrate und $\gamma$-Faktor lassen sich nur schwer Tendenzen erkennen. Über den gesamten Suchraum dieser Parameter lassen sich sowohl Konfigurationen mit hoher, sowie Konfigurationen mit weniger hoher Validierungsgenauigkeiten erreichen finden. Die Konfigurationen, welche die höchsten Validierungsgenauigkeiten erreichen (Siehe Abb.\ref{attention_top}) nutzen jedoch alle eine Lernrate im Bereich zwischen $0.0025$ und $0.009$. Die $\gamma$-Faktoren dieser Konfigurationen liegen meist unter $0.55$ und die Trainingsdauer über $30$ Epochen.
+Die beste gefundene Konfiguration erzielt eine Validierungsgenauigkeit von $94.5\%$ und nutzt dabei eine Lernrate von $0.0078$ einen $\gamma$-Faktor von $0.49$ und eine Trainingslänge von $32$ Epochen. 
+Mit Hilfe der ermittelten Hyperparameterwerte der besten gefundenen Konfigurationen für Fine-Tuning und Attention-Training werden $6$ neue Modelle Trainiert, die in den Retrievalexperimenten zur Extraktion der Deskriptoren genutzt werden. Die Trainingsverläufe dieser Modelle sind in Abb.\ref{optimized_runs} dargestellt.
 \begin{figure}[h]
-\includegraphics[scale=0.6]{NNOPT/attention_lr.pdf}
-\caption{Betrachtung der Lernrate. Rot: Bereich zwischen $0.0017$ und $0.0088$}
-\label{attention_lr}
+\includegraphics[scale=0.75]{NNOPT/6_model_verlauf}
+\caption{Trainingsverläufe mit optimierten Hyperparametern. Gleichefarbige Linen gehören zu gemeinsamen Trainingsläufen.}
+\label{optimized_runs}
 \end{figure}
 
 
-%Ergebnisse
-%Generell kann das Resnet die gestellten Aufgaben gut lösen. Das ganze funktioniert mit unterschiedlichen parametern noch sehr gut, daher legen wir keinen sehr großen fokus auf die hyperparamter.
-%Finetuning funktioniert gut. Im Finetuningteil ist die Performance schon ob der ersten epoche sehr gut, was nahelegt, dass die netzwerkparameter nur noch wenig angepasst werden (müssen).
-% Im Attention training ist schwieriger, da ein teil neuinitialisiert wird. Das obwohl die anzahl der optimierbaren parameter deutlich geringer ist.
-% Da bei den meisten runs bereits sehr gute ergebnisse erzielt wurden und nicht mehr viel potential zur verbesserung besteht wurden nicht noch mehr experimente durchgeführt. In Anbetracht der Anzahl an Trails gegenüber den mögliche Suchraums lassen sich keine eindeutlgen/belastbaren Beziehungen gegenüber den hyperparametern festlegen. Es zeigen sich jedoch einige Tendenzen.
-% mehr Epochen hat mehr potential
-% Lernrate gibt es für attentiontraining einen sweetspot auch sonst tendenzen. 
-% Beim Finetuning auch eher niedrige besser oder mit hohem gamma, damit die lernrate sich später einkriegt
-% Ist die Lernrate sehr/zu hoch ist das trainingsverhalten insgesamt instabiler. Dazu mehrer lineplots vereinen
  

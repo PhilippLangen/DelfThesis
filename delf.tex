@@ -43,7 +43,7 @@ Um die Netzwerkausgaben in den richtigen Wertebereich zu überführen, werden di
 \begin{equation}
 \text{Softmax}(\hat{Y'})_{c} = \frac{e^{\hat{Y'_c}}}{\sum_{ j \in C}{e^{\hat{Y'_j}}}} \forall c \in C
 \end{equation}
-Hierbei ist $\hat{Y'}$ ein Ausgabevektor des Netzwerks und $\hat{Y'_c}$ der Eintrag des Vektors welcher zur Klasse $c$ zugeordnet ist. Der resultierende Vektor kann als Wahrscheinlichkeitsverteilung über die unterschiedlichen Klassen im Bezug zur Eingabe interpretiert werden. Mit den vorgenommenen Modifikationen kann das ResNet Modell auf dem Trainingsdatensatz optimiert werden. Die für das Fine-Tuning und Attention-Training verwendeten Hyperparamter werden im Experimentalteil in Abschnitt \ref{hyperparam} auf Seite \pageref{hyperparam} erläutert.
+Hierbei ist $\hat{Y'}$ ein Ausgabevektor des Netzwerks und $\hat{Y'_c}$ der Eintrag des Vektors welcher zur Klasse $c$ zugeordnet ist. Der resultierende Vektor kann als Wahrscheinlichkeitsverteilung über die unterschiedlichen Klassen im Bezug zur Eingabe interpretiert werden. Mit den vorgenommenen Modifikationen kann das ResNet Modell auf dem Trainingsdatensatz optimiert werden. Die für das Fine-Tuning und Attention-Training verwendeten Hyperparamter werden im Experimentalteil in Abschnitt \ref{hyperparam} ab Seite \pageref{hyperparam} erläutert.
 
 \section{Attention Training}
 
