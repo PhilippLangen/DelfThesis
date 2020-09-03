@@ -40,7 +40,7 @@ Vorabexperimente haben gezeigt, dass die von DELF durchgeführte Deskriptorselek
 \caption{Referenzpunkte der ausgewählten Deskriptoren bei unterschiedlicher Eingangsauflösung.}
 \label{small_img}
 \end{figure}
-Auch sehr große Bilder können zu Problemen führen. Da die Bilder während dem Extraktionsprozess in mehreren Skalen betrachtet werden, können bei sehr großen Bildern Speicherproblem auftreten. Aus diesem Grund werden für die Bilder des Datensatzes eine minimale Auflösung von $0.6$MPixel und eine maximale Auflösung von $2.5$MPixel gefordert. Bilder die diese Restriktionen über- bzw. unterschreiten, werden auf die Maximal- bzw. Mindestgröße skaliert.\\
+Auch sehr große Bilder können zu Problemen führen. Da die Bilder während dem Extraktionsprozess in mehreren Skalen betrachtet werden, können bei sehr großen Bildern Speicherproblem auftreten. Aus diesem Grund wird für die Bilder des Datensatzes eine minimale Auflösung von $0.6$MPixel und eine maximale Auflösung von $2.5$MPixel gefordert. Bilder die diese Restriktionen über- bzw. unterschreiten, werden auf die Maximal- bzw. Mindestgröße skaliert.\\
 Neben historischen Daten wird das DELF-Verfahren zusätzlich auf dem Oxford5k-Datensatz \cite{oxford5k} getestet (vgl. Tab. \ref{oxford5k_data}). Hierbei handelt es sich um einen häufig verwendeten Benchmarkdatensatz, bestehend aus $5063$ Bildern. Das Bildmaterial entstammt Suchanfragen zu $11$ unterschiedlichen Sehenswürdigkeiten in und um Oxford, an die Fotocommunity Flickr\footnote{\url{https://www.flickr.com/},zuletzt besucht am 03.09.20}. Häufig finden sich dabei Bilder von Personen oder Aufnahmen von Innenräumen, die keine der gesuchten Sehenswürdigkeiten abbilden. Diese Störbilder können entweder als zusätzliche Herausforderung angesehen oder aber vorab aussortiert werden. In den in dieser Arbeit durchgeführten Experimenten sind die Störbilder im Datensatz enthalten. 
 \begin{table}[h]
 \centering
@@ -65,9 +65,18 @@ Anzahl Bilder             & 4218             & 823           & 22          & 506
 \label{oxford5k_data}
 \end{table}
 
-
-
 \section{Retrievalmetriken}
+
+Obwohl sich Klassifikations- und Retrievalaufgaben im Kern ähneln, können Metriken wie Genauigkeit, mit der Klassifikationssysteme üblicherweise bewertet werden, nicht verwendet werden, um die Performanz von Retrievalsystemen zu evaluieren. Generell genügt die berechnete Ähnlichkeit zwischen einzelnen Bildpaaren bestehend aus Anfragebild und Bild aus dem Suchindex nicht, um eine Aussage über die Performanz eines Retrievalsystems zu treffen. Stattdessen ist diese im Kontext aller möglichen Bildkombinationen aus Anfragebild und Suchindex zu betrachten, wobei das resultierende Ranking der Paare Grundlage für die Bewertung des Systems ist. Eine Möglichkeit der Bewertung eines Rankings ist die Erstellung einer sogenannten ROC-Kurve(Reciever-Operating-Characteristic)(vgl. Abb. \ref{metric_curve}). Hierfür wird eine wachsende Anzahl der zurückgegeben Bilder, sortiert nach der vom Ranking festgelegten Reihenfolge, betrachtet und jeweils das Verhältnis zwischen Richtig-Positiv-Rate bzw. Recall und Falsch-Positiv-Rate dargestellt. Der Recall gibt an, welcher Anteil an Bildern mit gewünschten Bildinhalt bereits im betrachteten Abschnitt der Rückgabe enthalten waren.
+\begin{equation}
+\text{Recall} = \frac{|\text{Bereits züruckgebene Bilder mit gewünschtem Inhalt}|}{|\text{Im Datensatz enthaltene Bilder mit gewünschtem Inhalt}|}
+\end{equation}
+Analog betrachtet die Falsch-Positiv-Rate den Anteil der bereits zurückgegebenen Bilder ohne gewünschten Bildinhalt.
+\begin{equation}
+\text{Falsch-Positiv-Rate} = \frac{|\text{Bereits züruckgebene Bilder ohne gewünschtem Inhalt}|}{|\text{Im Datensatz enthaltene Bilder ohne gewünschtem Inhalt}|}
+\end{equation}
+ROC-Kurven beginnen stets im Ursprung, wenn weder Bilder mit noch ohne korrektem Bildinhalt zurückgegeben wurden und enden im Punkt $(1,1)$ wenn der gesamte Datensatz zurückgegeben wurde. Die Strecke zwischen diesen Punkten bildet den erwarteten Verlauf, wenn das System Bilder in einer zufälligen Reihenfolge zurückgibt. Ein Retrievalsystem hat also nur dann einen positiven Effekt wenn die ROC-Kurven ihrer Anfrageantworten überhalb dieser Linie verlaufen.
+%
 
 \section{Parameter Analyse}
 
