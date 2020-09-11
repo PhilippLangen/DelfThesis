@@ -160,5 +160,20 @@ Mit Hilfe der ermittelten Hyperparameterwerte der besten gefundenen Konfiguratio
 \label{optimized_runs}
 \end{figure}
 
+\subsection{Betrachtung der Deskriptorlänge}\label{pca_experiments}
 
- 
+Nach Betrachtung der Trainingsphasen und Erstellung optimierter Modelle, werden nun Parameter aus den späteren Phasen des Verfahrens untersucht.
+Ein zentraler Parameter der Extraktions- und Verarbeitungsphase ist die Anzahl an Dimensionen, die den extrahierten Deskriptoren nach der Transformation mittels Hauptkomponentenanalyse erhalten bleiben (vgl. \ref{pca_chapter} auf Seite \pageref{pca_chapter}). Da die zu einem Suchdatensatz erstellte Repräsentation fast ausschließlich aus den transformierten Deskriptoren besteht, sind diese für den überwiegenden Teil des Speicherbedarfs verantwortlich, der während der aktiven Verwendung des Suchsystems anfällt \footnote{Bei der Suche nach den ähnlichsten Deskriptoren während dem Matching hat die Deskriptorlänge auch einen Einfluss auf die Laufzeit. Da der Rechenaufwand für die geometrische Verifizierung von Matches, die nicht von der Deskriptorlänge abhängt, jedoch deutlich größer ist, ist dieser Einfluss vernachlässigbar.}. Insbesondere bei der Suche in großen Datenbanken ist es daher notwendig die Deskriptoren stark zu komprimieren. Durch die verwendete Art der Komprimierung geht jedoch auch immer ein Teil der ursprünglichen in den Deskriptoren enthaltenen Informationen verloren. Um diesen Informationsverlust zu quantifizieren wird der Anteil der ursprünglichen Varianz zwischen den Deskriptoren errechnet, die nach der Transformation noch erhalten bleibt. Hierbei werden alle Deskriptoren betrachtet, die für die Berechnung der Hauptkomponentenanalyse genutzt wurden. Es ist davon auszugehen, dass sich der Informationsverlust auf unbeteiligten Deskriptoren ähnlich verhält.
+Es wird erwartet, dass durch den Erhalt von mehr Informationen ein präziseres Matching zwischen den Deskriptoren der betrachteten Bilder erzielt werden kann. Die Autoren des DELF-Papiers \cite{delf} schlagen als Kompromiss zwischen erhaltener Information und Kompaktheit vor die Deskriptoren auf $40$ Dimensionen zu reduzieren. Wie dieser Wert ermittelt wurde wird jedoch nicht beschrieben. Um eine geeigneten Anzahl an Dimensionen zu ermitteln werden neben der von den Autoren empfohlenen Anzahl auch die Hälfte bzw. ein Vielfaches an erhaltenen Dimensionen, bis zu $200$ getestet. In Abb. \ref{explained_variance_ratio} wird der Einfluss der Deskriptorgröße auf den Anteil der erklärten ursprünglichen Varianz dargestellt.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=1]{explained_variance.pdf}
+\caption{Erklärter Anteil der Varianz nach Deskriptortransformtion durch Hauptkomponentenanalyse auf unterschiedlichen Retrievaldatensätzen, je nach Anzahl erhaltener Dimensionen.}
+\label{explained_variance_ratio}
+\end{figure}
+
+%warum man das zusammen mit thresh betrachten sollte
+%erläuterung wie thresh gewählt wird. max abstand ist 2.0, da norimiert, aber der durchschnittliche Abstand steigt mit mehr varianz, daher muss der threshold auch angepasst werden, damit das initiale matching auch deskriptoren, die keinen validen partner haben aussortiert
+% dann einfluss aufzeigen mit plot, von thresh und expl. varianz
+% dann ergebnisse besprechen. weniger ist aufjedenfall nicht so gut, mehr bringt nur wenig. auf hist daten ist der unterschied noch größer, vielleicht lieber 80 dim benutzen. 
+%dann idee, da die beiden parameter abhängig sind vielleicht thresh an erklärte varianz koppeln. funktioniert gutisch so im bereich 0.6 gibts die besten ergebnisse. Fußnote, dass das bei reinen feature matches natürlich direkter ins gewicht fällt und auch besser zu sehen ist mit verweise auf plots im anhang

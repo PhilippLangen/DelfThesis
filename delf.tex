@@ -129,7 +129,7 @@ $\mathcal{S} \leftarrow \emptyset$ \;
 \end{algorithm}
 Im DELF-Verfahren wird für die Vorsortierung ein IoU-Schwellwert von $0.8$ genutzt. Nach der Vorsortierung findet die finale Selektion der Deskriptoren statt. Für jedes Bild werden hierbei von den verbliebenen Deskriptoren die 1000 Deskriptoren mit den höchsten Attention-Werten ausgewählt.
 
-\subsection{Datentransformation und Dimensionsreduktion}
+\subsection{Datentransformation und Dimensionsreduktion}\label{pca_chapter}
 
 Ziel des letzten Vorverarbeitungsschritts ist es die Daten der lokalen Deskriptoren in eine Form zu bringen, die ein effizientes Vergleichen möglich macht. Obwohl durch den Selektionsprozess bereits die Anzahl an lokalen Deskriptoren je Bild drastisch reduziert wurde ist die aktuelle Repräsentation der einzelnen Bilder noch sehr groß. Mit $1000$ Deskriptoren mit je $1024$ Dimensionen umfasst die Beschreibung jedes Bildes über eine Millionen Werte. Durch die folgenden Transformationen, wird die Größe der lokalen Deskriptoren und damit der gesamt Repräsentation stark reduziert. Die für DELF beschriebenen Transformationen bezeichnen die Autoren dabei als "common practice" (vgl. \cite{delf} Kap.4.3) und beziehen sich dabei auf das von Jégou und Chum in \cite{common_practice} untersuchte Vorgehen zur Transformation von VLAD und BOW-Deskriptoren. Tatsächlich werden Deskriptoren auch in anderen Image Retrieval Verfahren \cite{convnet} \cite{one} auf ähnliche Weise verarbeitet.
 \\
