@@ -91,9 +91,26 @@ Die vorgestellten Kurvenmetriken eigenen sich gut um einzelne Anfragen an Retrie
 
 \section{Parameter Analyse}
 
-Ein wesentliches Ziel dieser Arbeit ist es das DELF-Verfahren insbesondere für den Anwendungsfall des Retrievals von historischen Abbildungen zu optimieren. Hierfür werden ein Reihen an Parametern entlang der DELF-Pipeline variiert und ihre Einflüsse, auf die Retrievalergebnisse analysiert.
-Die benötigte Rechenleistung zur Durchführung der Experimente wird freundlicherweise vom 
-Zentrum für Informationsdienste und Hochleistungsrechnen (ZIH) an der TU Dresden zur Verfügung gestellt. Das verwendete HPC-DA System\footnote{\url{https://tu-dresden.de/zih/hochleistungsrechnen/hpc}, zuletzt besucht am 28.07.20} ermöglicht es viele Experimente parallel und effizient durchzuführen, sodass auch im zeitlich überschaubaren Rahmen dieser Arbeit eine große Anzahl unterschiedlicher Konfigurationen getestet werden können.
+Ein wesentliches Ziel dieser Arbeit ist es das DELF-Verfahren insbesondere für den Anwendungsfall des Retrievals von historischen Abbildungen zu optimieren. Hierfür werden ein Reihen an Parametern entlang der DELF-Pipeline variiert und ihre Einflüsse, auf die Retrievalergebnisse analysiert. Um belastbare Aussagen über die Einflüsse einzelner Parameter machen zu können, muss eine große Anzahl unterschiedlicher Parameterkonfigurationen betrachtet und Experimente diesbezüglich mehrfach wiederholt werden. Die dafür benötigte Rechenleistung ist sehr groß und auf einem normalen Desktopsystem nicht innerhalb des Zeitrahmens einer Masterarbeit realisierbar.\\
+Die Experimente werden daher auf dem HPC-DA System\footnote{\url{https://tu-dresden.de/zih/hochleistungsrechnen/hpc}} des Zentrums für Informationsdienste und Hochleistungsrechnen (ZIH), der TU Dresden durchgeführt. Die verwendete Partition für maschinelles Lernen besteht aus $32$ Knoten, mit jeweils $6$ NVIDIA VOLTA V100 GPUs und $2$ IBM Power9 CPUs mit je $22$ Kernen. Die große Anzahl an leistungsstarken Rechenknoten erlaubt es viele unterschiedliche Konfigurationen parallel und zügig zu untersuchen.
+In Tab.\ref{hpc} findet sich eine Übersicht der rechenintensiven Experimentreihen, die im Zuge dieser Arbeit durchgeführt wurden, mit Informationen über verwendete Hardware und benötigter Rechenzeit.
+
+\begin{table}[h]
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|l|l|l|l|l|}
+\hline
+\rowcolor[HTML]{C0C0C0} 
+Experiment                                                                             & \#Läufe & \#CPU-Kerne & \#GPUs & Totale Laufzeit (h) & Totale CPU-Zeit (h) & Totale GPU-Zeit (h) \\ \hline
+\begin{tabular}[c]{@{}l@{}}Hyperparameteroptimiertung\\ Finetuning\end{tabular}        & $1$     & $10$        & $10$   & $16$                & $160$               & $160$               \\ \hline
+\begin{tabular}[c]{@{}l@{}}Hyperparameteroptimierung\\ Attention-Training\end{tabular} & $2$     & $48$        & $12$   & $40$                & $1920$              & $480$               \\ \hline
+Modelltraining                                                                         & $12$    & $2-3$       & $1$    & $78$                & $226$               & $78$                \\ \hline
+Retrievalexperimente                                                                   & $919$   & $30$        & $1$    & $2027$              & $60834$             & $2027$              \\ \hline
+\multicolumn{4}{|l|}{Summe}                                                                                             & $2325$              & $63140$             & $2745$              \\ \hline
+\end{tabular}%
+}
+\caption{Übersicht über rechenintensive Experimente, durchgeführt auf der ML-Partition des HPC-DA Systems. Rechenzeiten sind jeweils über alle Läufe einer Experimentalreihe summiert. CPU-Zeit bezieht sich auf die akkumulierte Rechenzeit der CPU-Kerne.}
+\label{hpc}
+\end{table}
 
 \subsection{Hyperparameteroptimierung der Trainingsphasen}\label{hyperparam}
 Die ersten Experimentalreihen befassen sich mit den Trainingsphasen des DELF-Verfahrens. Um bei späteren Retrievalversuchen gute Ergebnisse erzielen zu können, benötigt man Modelle die in der Lage sind aussagekräftige Bildrepräsentationen zu erstellen. Für die Experimente zum Modelltraining wird dabei angenommen, dass die Güte, der von einem Modell erzeugten Deskriptoren bzw. der von einem Modell getroffenen Auswahl an Deskriptoren positiv mit der Fähigkeit, der Modelle korreliert die beim Training gestellte Klassifikationsaufgaben zu lösen. Um die Modelle zu bewerten wird daher der Fehler, in Form der Kreuzentropie betrachtet, der auftritt wenn das Modell einen Validierungsdatensatz klassifiziert. Vor Beginn jedes Experiments werden zufällig $20\%$ der Trainingsbilder (siehe Kap. \ref{trainingsdata} auf Seite \pageref{trainingsdata}) für die Validierung ausgewählt. Die Validierungsdaten stehen dem Modell während des Trainingsprozesses nicht zur Verfügung. Daher können sie genutzt werden, um zu überprüfen, ob ein Modell auch auf ungesehenen Daten vergleichbare Ergebnisse erzielt.
