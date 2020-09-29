@@ -125,7 +125,7 @@ Gut beobachten lässt sich der positive Effekt der Nutzung eines vortrainierten 
 \\
 \begin{figure}[h]
 \includegraphics[scale=0.750]{NNOPT/init_and_end_perf_finetuning.pdf}
-\caption{Erreichte Klassifikationsgenaugikeit nach der ersten bzw. letzten Epoche des Fine-Tunings, der getesteten Konfigurationen}
+\caption{Erreichte Klassifikationsgenaugikeit nach der ersten bzw. letzten Epoche des Fine-Tunings, der getesteten Konfigurationen. Achsenskalierung variiert.}
 \label{finetuning_int_end}
 \end{figure}
 \\
@@ -153,7 +153,7 @@ Die Konfiguration mit dem besten Trainingsergebnis schreibt eine Trainingsdauer 
 Das dabei trainierte Modell ist der Ausgangspunkt für die Hyperparameteroptimierung des Attention-Trainings. Analog wie in den Experimenten zum Fine-Tuning werden mit Hilfe von NNOPT $60$ unterschiedliche Konfigurationen für das Attention-Training getestet. Obwohl das Modell für das Attention-Training durch Entfernung des vierten ResNet-Blocks deutlich verkleinert wird und die Ausgaben des ResNets unter Verwendung des gewichteten Sum-Poolings (vgl. Abb.\ref{attention} auf Seite \pageref{attention}) sehr restriktiv genutzt werden, sind die Attention-Modelle in fast allen untersuchten Konfigurationen in der Lage die Klassifikationsaufgaben weiterhin sehr gut zu Lösen. So werden in $59$ der $60$ untersuchten Konfigurationen eine abschließende Validierungsgenauigkeit von über $89\%$ erreicht (siehe Abb.\ref{attention_int_end}b). Die durchschnittliche Validierungsgenauigkeit nach der letzten Trainingsepoche beträgt $91.3\%$, was einer durchschnittlichen Verschlechterung von $6.3\%$ gegenüber dem verwendeten fine-getunten ResNet-Modell entspricht. Im Kontrast zum Fine-Tuning variiert die gemessene Validierungsgenauigkeit nach der ersten Trainingsepoche der Attention-Trainings deutlich stärker und ist allgemein niedriger (vgl. Abb.\ref{attention_int_end}a). Da die Parameter der zu optimierenden Attention-Einheit nicht vortrainiert sind und daher zufällig initialisiert werden sind größere Unterschiede und schlechter Ergebnisse zu Beginn des Trainings, sowie eine längere benötigte Trainingsdauer zu erwarten.
 \begin{figure}[h]
 \includegraphics[scale=0.75]{NNOPT/init_and_end_perf_attention.pdf}
-\caption{Erreichte Klassifikationsgenaugikeit nach der ersten bzw. letzten Epoche des Attention-Trainings, der getesteten Konfigurationen}
+\caption{Erreichte Klassifikationsgenaugikeit nach der ersten bzw. letzten Epoche des Attention-Trainings, der getesteten Konfigurationen. Achsenskalierung variiert.}
 \label{attention_int_end}
 \end{figure}
 \\
@@ -173,7 +173,7 @@ Die beste gefundene Konfiguration erzielt eine Validierungsgenauigkeit von $94.5
 Mit Hilfe der ermittelten Hyperparameterwerte der besten gefundenen Konfigurationen für Fine-Tuning und Attention-Training werden $6$ neue Modelle Trainiert, die in den Retrievalexperimenten zur Extraktion der Deskriptoren genutzt werden. Die Trainingsverläufe dieser Modelle sind in Abb.\ref{optimized_runs} dargestellt.
 \begin{figure}[h]
 \includegraphics[scale=0.75]{NNOPT/6_model_verlauf}
-\caption{Trainingsverläufe mit optimierten Hyperparametern. Gleichefarbige Linen gehören zu gemeinsamen Trainingsläufen.}
+\caption{Trainingsverläufe mit optimierten Hyperparametern. Gleichefarbige Linen gehören zu gemeinsamen Trainingsläufen. Achsenskalierung variiert.}
 \label{optimized_runs}
 \end{figure}
 
@@ -207,13 +207,13 @@ Die Autoren der DELF-Papiers \cite{delf} verwenden für $40$-Dimensionale Deskri
 Im Folgenden werden neben diesem Wert sowohl kleiner, wie auch größere Werte zwischen $0.6$ und $1.4$ in Intervallschritten von $0.2$ getestet. Alle Parameterkombinationen von Deskriptorlänge und Distanzschwellwert werden auf den $6$ trainierten Modellen getestet. Für die Auswertung werden die Ergebnisse jeweils über die Läufe der $6$ Modelle gemittelt. Zusätzlich werden Fehlerbereiche im Größer der Standardabweichung angegeben. In Abb. \ref{mAP_num_dim} ist für alle betrachteten Konfigurationen von Deskriptorlänge und Distanzschwellwert, die auf dem historischen Datensatz sowie auf den Oxford5k-Daten getestet werden, die erreichte mAP dargestellt.
 
 \begin{figure}[h]
-\includegraphics[scale=0.74]{mAp_num_dim}
+\includegraphics[scale=0.73]{mAp_num_dim}
 \caption{Erreichte mAP bei unterschiedlicher Deskriptorlänge und Distanzschwellwert.}
 \label{mAP_num_dim}
 \end{figure}
 
 \begin{figure}[h]
-\includegraphics[scale=0.74]{mAp_var_dist_ratio}
+\includegraphics[scale=0.73]{mAp_var_dist_ratio}
 \caption{Erreichte mAP bei unterschiedlichen Verhältnissen zwischen erklärtem Varianzanteil und gewähltem Distanzschwellwert.}
 \label{mAP_var_dist_ratio}
 \end{figure}
@@ -237,7 +237,7 @@ Intuitiv stellen Deskriptorpaare, die sich besonders stark ähneln, jedoch einen
 Wobei $D_\Delta$ die Distanzen aller Deskriptorpaare $d_{\Delta i}$ enthält, die den Schwellwert nicht überschreiten.
 Bei den Experimenten zu Deskriptorlänge und Distanzschwellwert wurden die alternativen Bewertungsmethoden direkt mitberechnet.
 \begin{figure}[h]
-\includegraphics[scale=0.74]{mAp_num_dim_scoring_methods}
+\includegraphics[scale=0.73]{mAp_num_dim_scoring_methods}
 \caption{Erreichte mAP bei unterschiedlicher Deskriptorlänge und Distanzschwellwert unter Verwendung alternativer Bewertungsmethoden.}
 \label{mAP_num_dim_scoring_methods}
 \end{figure}
