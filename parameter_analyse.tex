@@ -335,8 +335,70 @@ Ein Aspekt, der für den praktischen Einsatz von Retrievalsystemen bedeutsam ist
 Kategorie        & Frauenkirche & Hofkirche & Moritzburg & Semperoper & Sophienkirche & Stallhof & Zwinger & Gesamt \\ \hline
 DELF mit RANSAC  & 0.62         & 0.74      & 0.73       & 0.33       & 0.34          & 0.43     & 0.69    & 0.56   \\ \hline
 DELF ohne RANSAC & 0.51         & 0.66      & 0.86       & 0.36       & 0.37          & 0.61     & 0.65    & 0.56   \\ \hline
-ConvNet          & 0.54         & 0.56      & 0.83       & 0.22       & 0.29          & 0.36     & 0.78    & 0.50   \\ \hline
+ConvNet          & 0.53         & 0.56      & 0.83       & 0.22       & 0.29          & 0.33     & 0.78    & 0.50   \\ \hline
 \end{tabular}%
 }
 \caption{Erreichte mAP der unterschiedlichen Verfahren bzw. Konfigurationen auf den historischen Daten, basierend auf $42$ Anfragen. Dargestellt für die einzelnen Kategorien, sowie für alle Anfragen. Achtung, für die einzelnen Kategorien werden unterschiedlich viele Anfragebilder betrachtet (vgl. Tab. \ref{hist4d_data}, S. \ref{hist4d_data}).}
 \end{table}
+
+
+%generelle Performance. Delf ist besser aber noch im vergleichbaren bereich. Unterscheidet sich auch sehr nach kategorie. Gibt generell schwerere Kategorien (sophienkirche semperoper) die schlecht laufen. Die sind z.b besonders von zerstörung und baulichen veränderungen betroffen.
+%betrachte die schlechtesten queries
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.40]{worst_queries}
+\caption{Anfragebilder, die unter Verwendung der unterschiedlichen Verfahren die niedrigste AP erreichen.}
+\label{worst_queries}
+\end{figure}
+%bei sempi bauliche veränderungen, krasse perspektiven, zerstörung..
+%bei zerstörung kann man nur schwer matchen. bsp von sophienkirche df_pos-2012-c_0000044.jpg mit pr-kruve die zerstörung zeigt
+\begin{figure}[h]
+\centering
+\includegraphics[scale=1.0]{destruction_pr}
+\caption{Anfrageantworten der unterschiedlichen Verfahren auf das Anfragebild, dargestellt als PR-Kurven. Kreuze heben hervor, wann Bilder mit korrektem Bildinhalt zurückgegeben werden, bei deinen das Objekt teilweise zerstört dargestellt ist.}
+\label{destruction_pr}
+\end{figure}
+
+%beispiel nacht und luftbilder
+%weitere probleme, die im datensatz auftreten sind nachtaufnahmen und luftbilder.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=1.0]{example_night_aerial}
+\caption{Beispiele für besonders herausfordernde Aufnahmen im historische Datensatz, in Form von Nacht- und Luftaufnahmen.}
+\label{destruction_pr}
+\end{figure}
+%dabei zeigt sich, dass delf mehr probleme mit dunkelheit hat danach verlauf bika mit is_night
+\begin{figure}[h]
+\centering
+\includegraphics[scale=1.0]{night_pr}
+\caption{Anfrageantworten der unterschiedlichen Verfahren auf das Anfragebild, dargestellt als PR-Kurven. Kreuze heben hervor, wann Nachtaufnahmen mit korrektem Bildinhalt zurückgegeben werden.}
+\label{destruction_pr}
+\end{figure}
+%% vielleicht kann man die pr_curven noch länglicher plotten, damit die seite besser gefüllt wird + man besser sieht
+%liegt vermutlich mit daran, dass die selektion schon schwierigkeiten hat, wegen weniger details im bild -> darkness plots
+
+% da delf besonders leidet nicht verwunderlich, dass besonders bei zwinger conv besser ist -> verweis auf effekttabelle (zwinger hat meiste nachtbilder)
+\begin{table}[h]
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|l|l|l|l|l|l|}
+\hline
+\rowcolor[HTML]{C0C0C0} 
+Kategorie & Frauenkirche & Hofkirche & Moritzburg & Semperoper & Sophienkirche & Stallhof & Zwinger \\ \hline
+Luftaufnahme  & 16.5\%       & 18.5\%    & 0.0\%      & 22.5\%     & 7.6\%         & 0.0\%    & 3.7\%   \\ \hline
+Zerstörung    & 2.9\%        & 9.7\%     & 0.0\%      & 4.5\%      & 27.3\%        & 7.9\%    & 1.1\%   \\ \hline
+Nachtaufnahme & 11.7\%       & 5.6\%     & 0.0\%      & 1.1\%      & 4.5\%         & 0.0\%    & 15.0\%  \\ \hline
+\end{tabular}%
+}
+\caption{Anteil an Objektdarstellungen im historischen Datensatz, die unterschiedliche erschwerenden Besonderheiten vorweisen.}
+\end{table}
+
+%luftbilder sind für alle ein problem, da bildinhalt klein, ungewöhnliche perspektive und viel drum rum
+% allerdings leidet conv stärker darunter. zeige wieder lowest tp und danach pr kurve von semperoper
+% conv muss gesamten bildinhalt matchen, delf kann auswahl treffen -> unwichtige bereiche fallen nicht ins gewicht. Für sehr markante 
+% gebäude hilft ransac auch noch mal ein sehr.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=1.0]{aerial_pr}
+\caption{Anfrageantworten der unterschiedlichen Verfahren auf das Anfragebild, dargestellt als PR-Kurven. Kreuze heben hervor, wann Luftaufnahmen mit korrektem Bildinhalt zurückgegeben werden.}
+\label{destruction_pr}
+\end{figure}
