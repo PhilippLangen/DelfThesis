@@ -320,13 +320,12 @@ Zusammenfassend scheint die Verwendung eines sehr späten Extraktionspunkts zu e
 \newpage
 \section{Verfahrensvergleich}
 
-Mit dem Wissen, um die Einflüsse unterschiedlicher Verfahrensparameter, soll der abschließende Teil der Auswertung dazu dienen, die Ergebnisse des DELF-Verfahrens auf den historischen Daten einzuordnen. Hierbei liegt ein besonderes Interesse darin herauszufinden, inwiefern sich das DELF-Verfahren für den Anwendungsfall auf historischen Bildern eignet und welche Stärken und Schwächen es im Vergleich zu anderen Verfahren aufweist. Für den Verfahrensvergleich stehen Ergebnisse des bereits zu Beginn kurz vorgestellten Retrievalsystems von Razavian et. al. \cite{convnet} (in Folge als ConvNet bezeichnet) zur Verfügung. Das ConvNet-Verfahren nutzt ein tiefes CNN, in diesem Fall eine VGG-16 Architektur, um mehrere lokale Deskriptoren für ein Eingangsbild zu erzeugen. Hierfür werden die Bilder zunächst regelbasiert in $30$ unterschiedlich große Teilbereiche zerschnitten. Die Teilbilder durchlaufen das VGG-Netzwerk und aus den Ausgaben der letzten faltenden Schicht wird mit Hilfe von max-pooling für jedes Teilbild ein $512$-dimensionaler Deskriptor erzeugt. Um die Ähnlichkeit zwischen einem Anfragebild und einem Bild des Suchdatensatzes zu quantifizieren, wird für jeden Deskriptor des Anfragebildes die euklidische Distanz zum ähnlichsten Deskriptor des Suchbildes berechnet. Die summierten Distanzen dienen als Ähnlichkeitsmaß für potentielle Bildpaare.
+Mit dem Wissen, um die Einflüsse unterschiedlicher Verfahrensparameter, soll der abschließende Teil der Auswertung dazu dienen, die Ergebnisse des DELF-Verfahrens auf den historischen Daten einzuordnen. Hierbei liegt ein besonderes Interesse darin herauszufinden, inwiefern sich das DELF-Verfahren für den Anwendungsfall auf historischen Bildern eignet und welche Stärken und Schwächen es im Vergleich zu anderen Verfahren aufweist. Für den Verfahrensvergleich stehen Ergebnisse des bereits zu Beginn kurz vorgestellten Retrievalsystems von Razavian et. al. \cite{convnet} (in Folge als ConvNet bezeichnet) zur Verfügung. Das ConvNet-Verfahren nutzt ein tiefes CNN, in diesem Fall eine VGG-16 Architektur, um mehrere lokale Deskriptoren für ein Eingangsbild zu erzeugen. Hierfür werden die Bilder zunächst regelbasiert in $30$ unterschiedlich große Teilbereiche zerschnitten. Die Teilbilder durchlaufen das VGG-Netzwerk und aus den Ausgaben der letzten faltenden Schicht wird mit Hilfe von max-pooling für jedes Teilbild ein $2048$-dimensionaler Deskriptor erzeugt. Um die Ähnlichkeit zwischen einem Anfragebild und einem Bild des Suchdatensatzes zu quantifizieren, wird für jeden Deskriptor des Anfragebildes die euklidische Distanz zum ähnlichsten Deskriptor des Suchbildes berechnet. Die summierten Distanzen dienen als Ähnlichkeitsmaß für potentielle Bildpaare.
 \\
 Das DELF-Verfahren nutzt für den Verfahrenvergleich die beste gefundene Konfiguration mit geometrischer Verifizierung, mit einer Deskriptorlänge von $160$ und einem Distanzschwellwert von $1.0$. Da auf den historischen Daten auch ohne geometrische Verifizierung ähnlich gute Ergebnisse erzielt werden, wird außerdem eine Konfiguration mit Deskriptorlänge $200$ und Distanzschwellwert $1.0$ ohne RANSAC betrachtet. Die Deskriptoren entstammen jeweils aus den Ausgaben des dritten ResNet-Blocks. Da sich bei wiederholten Experimenten mit gleicher Konfiguration keine signifikanten Ergebnisunterschiede beobachten lassen, basieren die in Folge präsentierten Ergebnisse jeweils nur auf einzelnen Experimentalläufen.
 \\
 Ein Aspekt, der für den praktischen Einsatz von Retrievalsystemen bedeutsam ist, in der vorliegenden Arbeit jedoch nur eine untergeordnete Rolle spielt, ist die für eine Suchanfrage benötigte Rechenleistung. Es sei angemerkt, dass das Ziel, der in der vorliegenden Arbeit erstellten Implementierung ist, einen möglichst flexiblen und nachvollziehbaren Prototypen zu erstellen. Daher ist für die praktische Anwendung des Verfahrens noch Optimierungspotential vorhanden. Trotzdem lässt sich die Größenordnung der möglichen Laufzeit mit Hilfe des Prototyps grob einschätzen. Um die Laufzeit der Verfahren zu Vergleichen führen alle untersuchten Verfahren Retrivalexperimente auf den historischen Daten durch, wobei ihnen je $21$ Kerne eines IBM Power9 CPUs und eine NVIDIA VOLTA V100 GPU zur Verfügung stehen. Das DELF-Verfahren unter Verwendung von RANSAC benötigt ca. $54$ Sekunden um einen Datensatz von $1000$ Bildern mit einem Anfragebild zu vergleichen. Hierbei ist die geometrische Verifikation für den Großteil der benötigten Rechenzeit verantwortlich. Verwendet man DELF ohne geometrische Verifikation dauern $1000$ Vergleiche nur ca. $18$ Sekunden. Ohne RANSAC ist die Laufzeit von DELF ähnlich, wie die des ConvNet-Verfahrens, welche für $1000$ Vergleiche zwischen $14$ und $19$ Sekunden benötigt. 
-
-
+\\
 \begin{table}[h]
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{|l|l|l|l|l|l|l|l|l|}
@@ -340,18 +339,15 @@ ConvNet          & 0.53         & 0.56      & 0.83       & 0.22       & 0.29    
 }
 \caption{Erreichte mAP der unterschiedlichen Verfahren bzw. Konfigurationen auf den historischen Daten, basierend auf $42$ Anfragen. Dargestellt für die einzelnen Kategorien, sowie für alle Anfragen. Achtung, für die einzelnen Kategorien werden unterschiedlich viele Anfragebilder betrachtet (vgl. Tab. \ref{hist4d_data}, S. \ref{hist4d_data}).}
 \end{table}
-
-
-%generelle Performance. Delf ist besser aber noch im vergleichbaren bereich. Unterscheidet sich auch sehr nach kategorie. Gibt generell schwerere Kategorien (sophienkirche semperoper) die schlecht laufen. Die sind z.b besonders von zerstörung und baulichen veränderungen betroffen.
-%betrachte die schlechtesten queries
+In Bezug auf die Retrievalergebnisse auf den historischen Daten, erzielen beide Versionen des DELF-Verfahrens auf den $42$ untersuchten Anfrage insgesamt eine um Rund $0.06$ höhere mAP als das ConvNet-Verfahren, wobei sich je nach Objektkategorie teilweise starke Unterschiede zeigen. Hierbei gibt es einige Kategorien, wie die Semperoper oder Sophienkirche, die für alle getesteten Verfahren eine besonders große Herausforderung darstellen. Neben Aspekten wie Auflösung uns Aufnahmequalität gibt es speziell historische Einflüsse, die die Retrievalaufgabe für die Kategorien besonders schwierig gestaltet. Betrachtet man die Anfragebilder, welche mit den getesteten Verfahren am schlechtesten beantwortet wurden (vgl. Abb. \ref{worst_queries}), so sieht man, dass sich die hier gezeigten Aufnahmen der Semperoper und des Stallhofs architektonisch deutlich von ihrem heutigen Selbst unterscheiden. Innerhalb des Datensatzes sind unterschiedliche bauliche Stadien, dieser Sehenswürdigkeiten enthalten, was ein genaues Matching erschwert. Auch zahlreiche Abbildungen von zerstörten Objekten, wie beispielsweise der Sophienkirchen sind ihren intakten Versionen nur schwer zuordenbar.  
+\\
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.40]{worst_queries}
 \caption{Anfragebilder, die unter Verwendung der unterschiedlichen Verfahren die niedrigste AP erreichen.}
 \label{worst_queries}
 \end{figure}
-%bei sempi bauliche veränderungen, krasse perspektiven, zerstörung..
-%bei zerstörung kann man nur schwer matchen. bsp von sophienkirche df_pos-2012-c_0000044.jpg mit pr-kruve die zerstörung zeigt
+In Abbildung \ref{destruction_pr} ist der Verlauf einer Suchanfrage der Sophienkirche der unterschiedlichen Verfahren an Hand von PR-Kurven dargestellt. Bei der Sophienkirche handelt es sich um die Kategorie, welche im Datensatz prozentual am häufigsten (teilweise) zerstört dargestellt ist (vgl. Tab. \ref{challenging_imgs}). Es stellt sich heraus, dass die Abbildungen der zerstörten Sophienkirchen zu einem überwiegenden Teil erst sehr spät innerhalb der Anfrageantworten zurückgegeben werden, wenn die Precision bereits sehr stark gesunken ist, bzw. schon viele Bilder ohne korrekten Bildinhalt zurückgegeben wurden. Daraus lässt sich schließen, dass Aufnahmen von zerstörten Gebäuden tatsächlich sehr viel schwerer ihren intakten Originalen zugeordnet werden können, als andere unbeschädigten Aufnahmen ihrer selbst.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=1.0]{destruction_pr}
@@ -389,6 +385,7 @@ Zerstörung    & 2.9\%        & 9.7\%     & 0.0\%      & 4.5\%      & 27.3\%    
 Nachtaufnahme & 11.7\%       & 5.6\%     & 0.0\%      & 1.1\%      & 4.5\%         & 0.0\%    & 15.0\%  \\ \hline
 \end{tabular}%
 }
+\label{challenging_imgs}
 \caption{Anteil an Objektdarstellungen im historischen Datensatz, die unterschiedliche erschwerenden Besonderheiten vorweisen.}
 \end{table}
 
