@@ -338,42 +338,38 @@ ConvNet          & 0.53         & 0.56      & 0.83       & 0.22       & 0.29    
 \end{tabular}%
 }
 \caption{Erreichte mAP der unterschiedlichen Verfahren bzw. Konfigurationen auf den historischen Daten, basierend auf $42$ Anfragen. Dargestellt für die einzelnen Kategorien, sowie für alle Anfragen. Achtung, für die einzelnen Kategorien werden unterschiedlich viele Anfragebilder betrachtet (vgl. Tab. \ref{hist4d_data}, S. \ref{hist4d_data}).}
+\label{comp_bench}
 \end{table}
-In Bezug auf die Retrievalergebnisse auf den historischen Daten, erzielen beide Versionen des DELF-Verfahrens auf den $42$ untersuchten Anfrage insgesamt eine um Rund $0.06$ höhere mAP als das ConvNet-Verfahren, wobei sich je nach Objektkategorie teilweise starke Unterschiede zeigen. Hierbei gibt es einige Kategorien, wie die Semperoper oder Sophienkirche, die für alle getesteten Verfahren eine besonders große Herausforderung darstellen. Neben Aspekten wie Auflösung uns Aufnahmequalität gibt es speziell historische Einflüsse, die die Retrievalaufgabe für die Kategorien besonders schwierig gestaltet. Betrachtet man die Anfragebilder, welche mit den getesteten Verfahren am schlechtesten beantwortet wurden (vgl. Abb. \ref{worst_queries}), so sieht man, dass sich die hier gezeigten Aufnahmen der Semperoper und des Stallhofs architektonisch deutlich von ihrem heutigen Selbst unterscheiden. Innerhalb des Datensatzes sind unterschiedliche bauliche Stadien, dieser Sehenswürdigkeiten enthalten, was ein genaues Matching erschwert. Auch zahlreiche Abbildungen von zerstörten Objekten, wie beispielsweise der Sophienkirchen sind ihren intakten Versionen nur schwer zuordenbar.  
+In Bezug auf die Retrievalergebnisse auf den historischen Daten, erzielen beide Versionen des DELF-Verfahrens auf den $42$ untersuchten Anfrage insgesamt eine um Rund $0.06$ höhere mAP als das ConvNet-Verfahren, wobei sich je nach Objektkategorie teilweise starke Unterschiede zeigen (vgl. Tab. \ref{comp_bench}). Hierbei gibt es einige Kategorien, wie die Semperoper oder Sophienkirche, die für alle getesteten Verfahren eine besonders große Herausforderung darstellen. Neben Aspekten wie Auflösung, Aufnahmequalität und Klassenverteilung innerhalb des Datensatzes (vgl. Tab. \ref{hist4d_data}) gibt es speziell historische Einflüsse, die die Retrievalaufgabe für diese Kategorien besonders schwierig gestaltet. Betrachtet man die Anfragebilder, welche mit den getesteten Verfahren am schlechtesten beantwortet wurden (vgl. Abb. \ref{worst_queries}), so sieht man, dass sich die hier gezeigten Aufnahmen der Semperoper und des Stallhofs architektonisch deutlich von ihrem heutigen Selbst unterscheiden. Innerhalb des Datensatzes sind unterschiedliche bauliche Stadien, dieser Sehenswürdigkeiten enthalten, was ein genaues Matching erschwert. Auch zahlreiche Abbildungen von zerstörten Objekten, wie beispielsweise der Sophienkirchen sind ihren intakten Versionen nur schwer zuordenbar.  
 \\
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.40]{worst_queries}
-\caption{Anfragebilder, die unter Verwendung der unterschiedlichen Verfahren die niedrigste AP erreichen.}
+\caption{Anfragebilder, die unter Verwendung der unterschiedlichen Verfahren die niedrigste AP erreichen. Von links nach rechts, sortiert nach aufsteigender maximal erreichter AP: Semperoper, Sophienkirche, Stallhof, Semperoper.}
 \label{worst_queries}
 \end{figure}
-In Abbildung \ref{destruction_pr} ist der Verlauf einer Suchanfrage der Sophienkirche der unterschiedlichen Verfahren an Hand von PR-Kurven dargestellt. Bei der Sophienkirche handelt es sich um die Kategorie, welche im Datensatz prozentual am häufigsten (teilweise) zerstört dargestellt ist (vgl. Tab. \ref{challenging_imgs}). Es stellt sich heraus, dass die Abbildungen der zerstörten Sophienkirchen zu einem überwiegenden Teil erst sehr spät innerhalb der Anfrageantworten zurückgegeben werden, wenn die Precision bereits sehr stark gesunken ist, bzw. schon viele Bilder ohne korrekten Bildinhalt zurückgegeben wurden. Daraus lässt sich schließen, dass Aufnahmen von zerstörten Gebäuden tatsächlich sehr viel schwerer ihren intakten Originalen zugeordnet werden können, als andere unbeschädigten Aufnahmen ihrer selbst.
+In Abbildung \ref{destruction_pr} ist der Verlauf einer Suchanfrage der Sophienkirche der unterschiedlichen Verfahren an Hand von PR-Kurven dargestellt. Bei der Sophienkirche handelt es sich um die Kategorie, welche im Datensatz prozentual am häufigsten (teilweise) zerstört dargestellt ist (vgl. Tab. \ref{challenging_imgs}). Die Abbildungen der zerstörten Sophienkirchen werden zu einem überwiegenden Teil erst sehr spät innerhalb der Anfrageantworten zurückgegeben, wenn die Precision bereits sehr stark gesunken ist, bzw. schon viele Bilder ohne korrekten Bildinhalt zurückgegeben wurden. Daraus lässt sich schließen, dass Aufnahmen von zerstörten Gebäuden tatsächlich sehr viel schwerer ihren intakten Originalen zugeordnet werden können, als andere unbeschädigten Aufnahmen ihrer selbst.
+\\
 \begin{figure}[h]
 \centering
 \includegraphics[scale=1.0]{destruction_pr}
 \caption{Anfrageantworten der unterschiedlichen Verfahren auf das Anfragebild, dargestellt als PR-Kurven. Kreuze heben hervor, wann Bilder mit korrektem Bildinhalt zurückgegeben werden, bei deinen das Objekt teilweise zerstört dargestellt ist.}
 \label{destruction_pr}
 \end{figure}
-
-%beispiel nacht und luftbilder
-%weitere probleme, die im datensatz auftreten sind nachtaufnahmen und luftbilder.
+Zerstörung und architektonischer Wandel sind dabei nicht die einzigen Aspekte, die den historischen Datensatz besonders anspruchsvoll für das Image Retrieval machen. Auch ein großer Anteil an Nacht- und Luftaufnahmen machen die Suche besonders schwierig. Bei in Dunkelheit aufgenommene Bildern, wie in Abbildung \ref{example_night_aerial} a zu sehen, lässt sich durch den geringen Kontrast deutlich schwerer Erkennen, welche Teile des Bildes relevante Inhalte darstellen, was die Auswahl geeigneter Deskriptoren erschwert. Auch sind viele Details kaum zu erkennen, die möglicherweise für die Erstellung von aussagekräftigen Deskriptoren genutzt werden könnten. Generell ist davon auszugehen, dass sich Deskriptoren aus Nachtbildern deutlich von Deskriptoren aus Aufnahmen bei Tageslicht unterscheiden. 
 \begin{figure}[h]
 \centering
 \includegraphics[scale=1.0]{example_night_aerial}
 \caption{Beispiele für besonders herausfordernde Aufnahmen im historische Datensatz, in Form von Nacht- und Luftaufnahmen.}
-\label{destruction_pr}
+\label{example_night_aerial}
 \end{figure}
-%dabei zeigt sich, dass delf mehr probleme mit dunkelheit hat danach verlauf bika mit is_night
 \begin{figure}[h]
 \centering
 \includegraphics[scale=1.0]{night_pr}
 \caption{Anfrageantworten der unterschiedlichen Verfahren auf das Anfragebild, dargestellt als PR-Kurven. Kreuze heben hervor, wann Nachtaufnahmen mit korrektem Bildinhalt zurückgegeben werden.}
-\label{destruction_pr}
+\label{night_pr}
 \end{figure}
-%% vielleicht kann man die pr_curven noch länglicher plotten, damit die seite besser gefüllt wird + man besser sieht
-%liegt vermutlich mit daran, dass die selektion schon schwierigkeiten hat, wegen weniger details im bild -> darkness plots
-
-% da delf besonders leidet nicht verwunderlich, dass besonders bei zwinger conv besser ist -> verweis auf effekttabelle (zwinger hat meiste nachtbilder)
+In Abbildung \ref{night_pr} sind PR-Kurven zu einer Suchanfrage nach Bildern des Zwingers dargestellt. Insbesondere bei Verwendung von DELF zeigt sich das Nachtaufnahmen des Zwinger, dargestellt durch Kreuze, fast ausschließlich unter den zuletzt zurückgegebenen Bildern zu finden sind. Interessanterweise scheint das ConvNet-Verfahren deutlich besser in der Lage zu sein Nachtaufnahmen mit der Anfrage zu matchen. Die Nachtbilder werden relativ gleichmäßig über den Verlauf der PR-Kurve zurückgegeben, was darauf schließen lässt, dass die Belichtung hier eine deutlich geringere Rolle für den Matchingerfolg spielt. Warum dies so ist, lässt sich aktuell nur schwer feststellen, es erklärt allerdings, warum das ConvNet-Verfahren ausgerechnet für die Kategorie des Zwingers deutlich bessere Ergebnisse, als das DELF-Verfahren erzielt (vgl. \ref{comp_bench}). So findet sich in der Kategorie Zwinger der größte Anteil an Nachtaufnahmen im historischen Datensatz (vgl. Tab. \ref{challenging_imgs}).
 \begin{table}[h]
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{|l|l|l|l|l|l|l|l|}
@@ -385,17 +381,16 @@ Zerstörung    & 2.9\%        & 9.7\%     & 0.0\%      & 4.5\%      & 27.3\%    
 Nachtaufnahme & 11.7\%       & 5.6\%     & 0.0\%      & 1.1\%      & 4.5\%         & 0.0\%    & 15.0\%  \\ \hline
 \end{tabular}%
 }
-\label{challenging_imgs}
 \caption{Anteil an Objektdarstellungen im historischen Datensatz, die unterschiedliche erschwerenden Besonderheiten vorweisen.}
+\label{challenging_imgs}
 \end{table}
-
-%luftbilder sind für alle ein problem, da bildinhalt klein, ungewöhnliche perspektive und viel drum rum
-% allerdings leidet conv stärker darunter. zeige wieder lowest tp und danach pr kurve von semperoper
-% conv muss gesamten bildinhalt matchen, delf kann auswahl treffen -> unwichtige bereiche fallen nicht ins gewicht. Für sehr markante 
-% gebäude hilft ransac auch noch mal ein sehr.
+Luftaufnahmen, wie in Abbildung \ref{example_night_aerial} b zu sehen, stellen aus mehreren Gründen eine Herausforderung für Retrievalverfahren dar. Zunächst zeigen sie die abgebildeten Objekte aus einer ungewöhnlichen Perspektive, sodass Objektteile in den Fokus gerückt werden, die bei einer Frontalaufnahme nicht zu sehen sind. Zugleich werden große Teile der Frontsicht durch Dächer und Türme der Gebäude verdeckt. Luftaufnahmen zeigen auch meist nicht nur das gesuchte Objekt, sondern einen großen Ausschnitt der Umgebung, die häufig viele weitere markante Gebäude und Strukturen enthält. In den Luftaufnahmen des historischen Datensatzes sind auf Grund der Dresdner Stadtstruktur häufig sogar mehrere der untersuchten Kategorien zu sehen. Der jeweils gesuchte Bildinhalt nimmt bei Luftaufnahmen meist nur einen kleinen Teil des Gesamtbildes ein. Dies führt nicht nur dazu, dass weniger Details des Objektes sichtbar sind, sondern auch das ein Großteil der Deskriptoren, die aus einem Luftbild extrahierte werden, nicht das gesuchte Objekt beschreiben. Mit Hilfe des Attention-Netzwerks kann DELF zwar strukturarme Bildbereiche, wie z.B. Abschnitte der Elbe ausgeschlossen werden. Das Selektionsverfahren kann allerdings nicht entscheiden, welche Gebäude für die aktuelle Suchanfrage interessant sind. Das ConvNet-Verfahren, welches mit einer regelbasierten Segmentierung des Bildinhaltes arbeite, hat keine Möglichkeit Bildbereiche auszuschließen. In Abbildung \ref{aerial_pr} sind PR-Kurven zu einer Suchanfrage der Frauenkirche dargestellt, bei denen zurückgegebene Luftaufnahmen hervorgehoben werden, welche die Frauenkirche enthalten.
+\\
+Es zeigt sich deutlich, dass Luftaufnahmen für alle untersuchten Verfahren sehr schwierig zu matchen sind. Wie erwartet hat das ConvNet-Verfahren, mit seinem segmentierenden Ansatz jedoch die größten Schwierigkeiten Luftaufnahmen zu matchen. Das DELF-Verfahren profitiert bei der Betrachtung deutlich von der geometrischen Verifikation. Bei der Verwendung von RANSAC ist die Anzahl an verifizierten Matchings auch zwischen Bildern mit gleichem Bildinhalt typischerweise deutlich niedriger, als bei einer reinen Betrachtung der initialen Matchanzahl. Daher kann auch mit einer geringen Anzahl an relevanten Deskriptoren eine hohe RANSAC-Bewertung erzielt werden. Da die relevanten Deskriptoren der betrachteten Luftbilder auf einen kleinen Bildbereich eingegrenzt sind und daher nah beieinander liegen, ist es außerdem leichter eine geeignete Transformation zu finden, die einen großen Teil der relevanten Deskriptoren innerhalb des RANSAC-Schwellwerts erklären kann. 
 \begin{figure}[h]
 \centering
 \includegraphics[scale=1.0]{aerial_pr}
 \caption{Anfrageantworten der unterschiedlichen Verfahren auf das Anfragebild, dargestellt als PR-Kurven. Kreuze heben hervor, wann Luftaufnahmen mit korrektem Bildinhalt zurückgegeben werden.}
-\label{destruction_pr}
+\label{aerial_pr}
 \end{figure}
+Betrachtet man die erzielte mAP der Verfahren in den unterschiedlichen Kategorien (vgl. Tab. \ref{comp_bench}) in Zusammenhang mit den Anteilen an besonders herausfordernden Bilder, je nach Kategorie (vgl. Tab. \ref{challenging_imgs}), so zeigt sich, dass DELF besonders bei einem hohen Anteil ein Luftaufnahmen (Semperoper, Hofkirche, Frauenkirche) deutlich besser als das ConvNet-Verfahren funktioniert. In der Kategorie der Frauenkirche fällt dieser Effekt, auf Grund des hohen Anteils an Nachtaufnahmen möglicherweise geringer aus.
