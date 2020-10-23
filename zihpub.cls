@@ -859,7 +859,8 @@ Wissenschaftlichen Hochleistungsrechnen''}
 	  {\vspace*{2cm}
 	  \minisec{Kurzfassung}
 	  \@abstractde
-	  \vspace{2cm}
+	  \clearpage
+	  \vspace*{2cm}
  	  \selectlanguage{american}
 	  \minisec{Abstract}
 	  \@abstracten
