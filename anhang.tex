@@ -1,4 +1,5 @@
 \newpage
+\addcontentsline{toc}{chapter}{Anhang}
 \pagestyle{empty}
 \vspace*{7cm}
 \begin{center}
@@ -7,7 +8,7 @@
 \newpage
 \pagestyle{fancy}
 \markboth{Anhang}{}
-\addcontentsline{toc}{chapter}{Anhang}
+
 \setcounter{figure}{0}
 \renewcommand{\thefigure}{\Roman{figure}}
 
@@ -15,16 +16,16 @@
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.52]{NNOPT/Anhang/layer3_with_weigth_decay_finetuning}
-\caption{Ergänzung zu Abb.\ref{finetuning_all} mit zusätzlicher Betrachtung des Weight Decay Parameters. Parallele Darstellung der getesteten Konfigurationen des Fine-Tunings. Jede Linie repräsentiert einen Konfiguration und die von ihr erzielte Validierungsgenauigkeit.}
+\caption{Ergänzung zu Abb.\ref{finetuning_all} mit zusätzlicher Betrachtung des Weight Decay Parameters. Parallele Darstellung der getesteten Konfigurationen des Fine-Tunings. Jede Linie repräsentiert eine Konfiguration und die von ihr erzielte Validierungsgenauigkeit.}
 \label{weight_decay_1}
 \includegraphics[scale=0.52]{NNOPT/Anhang/layer3_with_weigth_decay_attention}
-\caption{Ergänzung zu Abb.\ref{attention_epochs} mit zusätzlicher Betrachtung des Weight Decay Parameters. Parallele Darstellung der getesteten Konfigurationen des Attention-Trainings. Jede Linie repräsentiert einen Konfiguration und die von ihr erzielte Validierungsgenauigkeit.}
+\caption{Ergänzung zu Abb.\ref{attention_epochs} mit zusätzlicher Betrachtung des Weight Decay Parameters. Parallele Darstellung der getesteten Konfigurationen des Attention-Trainings. Jede Linie repräsentiert eine Konfiguration und die von ihr erzielte Validierungsgenauigkeit.}
 \label{weight_decay_2}
 \end{figure}
 
 \begin{figure}[h]
 \includegraphics[scale=0.75]{NNOPT/Anhang/layer4_int_and_end_perf_attention.pdf}
-\caption{Erreichte Klassifikationsgenaugikeit nach der ersten bzw. letzten Epoche des Attention-Trainings, der getesteten Konfigurationen, bei Verwendung von Deskriptoren aus \mbox{Block-4}. Achsenskalierung variiert.}
+\caption{Erreichte Klassifikationsgenaugikeit nach der ersten bzw. letzten Epoche des Attention-Trainings der getesteten Konfigurationen bei Verwendung von Deskriptoren aus \mbox{Block-4}. Achsenskalierung variiert.}
 \label{hyperopt_layer4_1}
 \end{figure}
 
@@ -39,7 +40,7 @@
 
 
 \includegraphics[scale=1.3]{NNOPT/Anhang/explained_variance_layer4}
-\caption{Erklärter Anteil der Varianz nach Deskriptortransformtion durch Hauptkomponentenanalyse auf unterschiedlichen Retrievaldatensätzen, bei Verwendung von unterschiedlichen Extraktionspunkten, je nach Anzahl erhaltener Dimensionen. }
+\caption{Erklärter Anteil der Varianz nach Deskriptortransformtion durch Hauptkomponentenanalyse auf unterschiedlichen Retrievaldatensätzen, bei Verwendung von unterschiedlichen Extraktionspunkten je nach Anzahl erhaltener Dimensionen. }
 \label{hyperopt_layer4_3}
 \end{center}
 
